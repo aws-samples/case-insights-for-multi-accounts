@@ -1,0 +1,323 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  CimaBusArn:
+    Type: String
+    Description: ARN of the CIMA bus
+
+Resources:
+  CimaEnrichFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "CimaEnrichFunction-${AWS::AccountId}"
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+                Service: lambda.amazonaws.com
+            Action: sts:AssumeRole 
+      Policies:
+        - PolicyName: cloudwatch-logs-access
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+        - PolicyName: CimaSendEvent-access
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "events:PutEvents"
+                Resource: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:event-bus/default"
+        - PolicyName: CimaDescribeCases
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "support:DescribeCases"
+                Resource: "*"
+        - PolicyName: CimaDescribeCeForAccountName
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "ce:GetDimensionValues"
+                Resource: "*"
+     
+  CimaEnrichFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "CimaEnrichFunction-${AWS::AccountId}"
+      Handler: index.lambda_handler
+      Runtime: python3.8
+      Timeout: 900
+      Code:
+        ZipFile: |
+          import boto3
+          import json
+          import os
+          from datetime import datetime, timezone, timedelta
+
+          def lambda_handler(event, context):
+              case_id = event['detail']['case-id']
+              client = boto3.client('support', region_name='us-east-1')
+              case = retrieve_case_details(client, case_id)
+              case = format_case_data(case)
+              case = accountName(case)
+              publish_event(case)
+              return {'statusCode': 200, 'body': 'Success'}
+
+          def retrieve_case_details(client, case_id):
+              response = client.describe_cases(caseIdList=[case_id])
+              return response['cases'][0]
+
+          def format_case_data(case):
+              if case['status'] in ['resolved', 'closed']:
+                  resolve_time_str = case['recentCommunications']['communications'][0]['timeCreated']
+                  resolve_time_obj = datetime.strptime(resolve_time_str, '%Y-%m-%dT%H:%M:%S.%fZ')
+                  case['resolveTime'] = resolve_time_obj.strftime('%m/%d/%Y %H:%M:%S')
+              
+              submitted_role = case['recentCommunications']['communications'][-1]['submittedBy']
+              case['submittedRole'] = submitted_role         
+              case['timeCreated'] = datetime.strptime(case['timeCreated'], '%Y-%m-%dT%H:%M:%S.%fZ').strftime('%m/%d/%Y %H:%M:%S')   
+              return case
+
+          def accountName(case):
+              # Get the account ID using the 'get_caller_identity' method
+              session = boto3.Session()
+              sts_client = session.client('sts')
+              account_id = sts_client.get_caller_identity()['Account']
+              
+              # Set the TimePeriod to cover the last day
+              end_date = datetime.now().strftime('%Y-%m-%d')
+              start_date = (datetime.now() - timedelta(days=120)).strftime('%Y-%m-%d')
+              
+              # Get the account Name using the 'get_dimension_values' method
+              client = boto3.client('ce', region_name='us-east-1')
+              response = client.get_dimension_values(
+                  SearchString=account_id,
+                  TimePeriod={'Start': start_date, 'End': end_date},
+                  Dimension='LINKED_ACCOUNT',
+                  Context='COST_AND_USAGE'
+              )
+              for each in response['DimensionValues']:
+                  attributes = each.get('Attributes', {})
+                  description = attributes.get('description', 'N/A')
+              case['accountName'] = description
+              return case
+
+          def publish_event(case):
+              eventbridge = boto3.client('events')
+              eventbridge.put_events(
+                  Entries=[
+                      {
+                          'Source': 'Cima',
+                          'DetailType': 'case-details',
+                          'Detail': json.dumps(case),
+                          'EventBusName': os.environ['EventBusName']
+                      }
+                  ]
+              )
+      Role: !GetAtt CimaEnrichFunctionRole.Arn
+      Environment:
+        Variables:
+          EventBusName: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:event-bus/default"
+
+  CimaRuleDefaultGetEvent:
+    Type: "AWS::Events::Rule"
+    Properties:
+      Name: !Sub "CimaRuleDefaultGetEvent-${AWS::AccountId}"
+      Description: "EventBridge default rule to get aws.support events"
+      EventBusName: "default"
+      EventPattern:
+        source:
+          - "aws.support"
+      Targets:
+        - Arn: !GetAtt CimaEnrichFunction.Arn
+          Id: !Ref CimaEnrichFunction
+
+  CimaRuleDefaultBusPermissions:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt CimaEnrichFunction.Arn
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt CimaRuleDefaultGetEvent.Arn
+
+  CimaRuleDefaultPutEventRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "CimaRuleDefaultPutEvent-${AWS::AccountId}"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Action: sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: !Sub "CimaRuleDefaultPutEvent-${AWS::AccountId}"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "events:PutEvents"
+                Resource: !Ref CimaBusArn
+
+  CimaRuleDefaultPutEvent:
+    Type: "AWS::Events::Rule"
+    Properties:
+      Name: !Sub "CimaRuleDefaultPutEvent-${AWS::AccountId}"
+      Description: "EventBridge default rule to put  Cima events"
+      EventBusName: "default"
+      EventPattern:
+        source:
+          - "Cima"
+      Targets:
+        - Arn: !Ref CimaBusArn
+          Id:  CimaBusAsTarget
+          RoleArn: !GetAtt CimaRuleDefaultPutEventRole.Arn
+
+  CimaEnrichFunctionBackfill:
+    Type: AWS::Lambda::Function
+    DependsOn: CimaRuleDefaultPutEvent
+    Properties:
+      FunctionName: !Sub "CimaEnrichFunctionBackfill-${AWS::AccountId}"
+      Handler: index.lambda_handler
+      Runtime: python3.8
+      Timeout: 900
+      Code:
+        ZipFile: |
+          import boto3
+          import json
+          import os
+          from datetime import datetime, timezone, timedelta
+          import cfnresponse
+
+          def lambda_handler(event, context):
+              try:
+                  client = boto3.client('support', region_name='us-east-1')
+                  start_date = datetime.now() - timedelta(days=365)
+                  paginator = client.get_paginator('describe_cases')
+                  response_iterator = paginator.paginate(includeResolvedCases=True, afterTime=start_date.isoformat())
+                  
+                  if not any(response['cases'] for response in response_iterator):
+                      handle_mock_case()
+                  else:
+                      handle_mock_case()
+                      handle_non_mock_cases(response_iterator)
+                  
+                  cfnresponse.send(event, context, cfnresponse.SUCCESS, {}, None)
+                  return {'statusCode': 200, 'body': 'Success'}
+              except Exception as e:
+                  cfnresponse.send(event, context, cfnresponse.FAILED, {}, None)
+                  return {'statusCode': 500, 'body': 'Fail'}
+
+          def handle_mock_case():
+              case = {
+                  "caseId": "MockID",
+                  "accountName": "MockAccount",
+                  "displayId": "1234567890",
+                  "subject": "Test case",
+                  "status": "resolved",
+                  "serviceCode": "amazon-artifact",
+                  "categoryCode": "general-guidance",
+                  "severityCode": "low",
+                  "submittedBy": "mock@example.com",
+                  "timeCreated": "06/11/2023 19:25:49",
+                  "recentCommunications": {
+                      "communications": [
+                          {
+                              "caseId": "MockID",
+                              "body": "This case has been resolved. Please contact us again if you need further assistance.",
+                              "submittedBy": "Amazon Web Services",
+                              "timeCreated": "2023-06-11T19:37:08.984Z",
+                              "attachmentSet": []
+                          },
+                          {
+                              "caseId": "cMockID",
+                              "body": "test case\n",
+                              "submittedBy": "Admin/MockRole (Role) <mock@example.com>",
+                              "timeCreated": "2023-06-11T19:25:50.680Z",
+                              "attachmentSet": []
+                          }
+                      ]
+                  },
+                  "ccEmailAddresses": [],
+                  "language": "en",
+                  "resolveTime": "06/11/2023 19:37:08",
+                  "submittedRole": "Admin/MockRole (Role) <mock@example.com>"
+              }
+              publish_event(case)
+
+          def handle_non_mock_cases(response_iterator):
+            try:
+              for response in response_iterator:
+                  cases = response['cases']
+                  for case in cases:
+                      if case['status'] in ['resolved', 'closed']:
+                          resolve_time_str = case['recentCommunications']['communications'][0]['timeCreated']
+                          resolve_time_obj = datetime.strptime(resolve_time_str, '%Y-%m-%dT%H:%M:%S.%fZ')
+                          case['resolveTime'] = resolve_time_obj.strftime('%m/%d/%Y %H:%M:%S')
+                      
+                      case['submittedRole'] = case['recentCommunications']['communications'][-1]['submittedBy']
+                      case['timeCreated'] = datetime.strptime(case['timeCreated'], '%Y-%m-%dT%H:%M:%S.%fZ').strftime('%m/%d/%Y %H:%M:%S')
+                      
+                      # Get the account ID using the 'get_caller_identity' method
+                      session = boto3.Session()
+                      sts_client = session.client('sts')
+                      account_id = sts_client.get_caller_identity()['Account']
+                      
+                      # Set the TimePeriod to cover the last day
+                      end_date = datetime.now().strftime('%Y-%m-%d')
+                      start_date = (datetime.now() - timedelta(days=120)).strftime('%Y-%m-%d')
+                      
+                      # Get the account Name using the 'get_dimension_values' method
+                      client = boto3.client('ce', region_name='us-east-1')
+                      response = client.get_dimension_values(
+                          SearchString=account_id,
+                          TimePeriod={'Start': start_date, 'End': end_date},
+                          Dimension='LINKED_ACCOUNT',
+                          Context='COST_AND_USAGE'
+                      )
+                      for each in response['DimensionValues']:
+                          attributes = each.get('Attributes', {})
+                          description = attributes.get('description', 'N/A')
+                      case['accountName'] = description
+
+                      publish_event(case)
+            except Exception as e:
+              return {'statusCode': 500, 'body': 'Fail'}
+
+          def publish_event(case):
+              eventbridge = boto3.client('events')
+              eventbridge.put_events(
+                  Entries=[
+                      {
+                          'Source': 'Cima',
+                          'DetailType': 'case-details',
+                          'Detail': json.dumps(case),
+                          'EventBusName': os.environ['EventBusName']
+                      }
+                  ]
+              )
+      Role: !GetAtt CimaEnrichFunctionRole.Arn
+      Environment:
+        Variables:
+          EventBusName: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:event-bus/default"
+
+  MyLambdaInvoker:
+    Type: Custom::MyLambdaInvoker
+    Properties:
+      ServiceToken: !GetAtt CimaEnrichFunctionBackfill.Arn
+

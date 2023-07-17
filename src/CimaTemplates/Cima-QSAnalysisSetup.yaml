@@ -1,0 +1,1791 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  CimaQSDataSetArn:
+    Type: String
+    Description: The AWS Health Event QSDataSetArn for Analysis.
+  QuickSightUser:
+    Type: String
+    Description: The QuickSight User that is allowed configure and manage the QS dashboard.
+
+Resources:
+  CimaEventAnalysis:
+    Type: AWS::QuickSight::Analysis
+    Properties:
+      AwsAccountId: !Sub "${AWS::AccountId}"
+      Name: !Sub "Cima-Analysis-${AWS::AccountId}"
+      AnalysisId: !Sub "cfn-integration-Cima-Analysis-${AWS::AccountId}"
+      Definition: 
+        DataSetIdentifierDeclarations:
+        - Identifier: !Sub "Cima-${AWS::AccountId}"
+          DataSetArn: !Ref CimaQSDataSetArn 
+        Sheets:
+        - SheetId: 95d28580-bc1b-4bae-9cd7-f6a9c207df49
+          Title: Case Insights for Multi-accounts (CIMA)
+          Name: Case Analysis
+          FilterControls:
+          - RelativeDateTime:
+              FilterControlId: 757847a5-faf7-4218-bf04-ab39e37fee26
+              Title: Insight Period
+              SourceFilterId: 5c93d8a7-d8eb-4a01-a4e9-3640082d19da
+              DisplayOptions:
+                TitleOptions:
+                  Visibility: VISIBLE
+                  FontConfiguration:
+                    FontSize:
+                      Relative: LARGE
+                DateTimeFormat: YYYY/MM/DD HH:mm:ss
+          - Dropdown:
+              FilterControlId: d3836243-7c39-4a09-b6ba-99228b792f61
+              Title: Account
+              SourceFilterId: 0ec99f49-5caa-4df3-a5e4-0e0fd4dc53ba
+              DisplayOptions:
+                SelectAllOptions:
+                  Visibility: VISIBLE
+                TitleOptions:
+                  Visibility: VISIBLE
+                  FontConfiguration:
+                    FontSize:
+                      Relative: MEDIUM
+              Type: MULTI_SELECT
+          - Dropdown:
+              FilterControlId: 653472fc-ee45-4e44-9b84-cce3cbac95cb
+              Title: Severity
+              SourceFilterId: a6649615-e2be-4f9b-ad0b-8022795d2c5d
+              DisplayOptions:
+                SelectAllOptions:
+                  Visibility: VISIBLE
+                TitleOptions:
+                  Visibility: VISIBLE
+                  FontConfiguration:
+                    FontSize:
+                      Relative: MEDIUM
+              Type: MULTI_SELECT
+          - Dropdown:
+              FilterControlId: e5000338-6f12-4e7d-8173-34efdc62a04b
+              Title: Service
+              SourceFilterId: d1e2cbed-0320-451e-a7d9-906d4bcbbed4
+              DisplayOptions:
+                SelectAllOptions:
+                  Visibility: VISIBLE
+                TitleOptions:
+                  Visibility: VISIBLE
+                  FontConfiguration:
+                    FontSize:
+                      Relative: MEDIUM
+              Type: MULTI_SELECT
+          - Dropdown:
+              FilterControlId: a603a305-2b66-4fa2-8d15-2188391f7f58
+              Title: Created by
+              SourceFilterId: b4cbf505-6863-46b6-927b-156f2e67288f
+              DisplayOptions:
+                SelectAllOptions:
+                  Visibility: VISIBLE
+                TitleOptions:
+                  Visibility: VISIBLE
+                  FontConfiguration:
+                    FontSize:
+                      Relative: MEDIUM
+              Type: MULTI_SELECT
+          Visuals:
+          - ComboChartVisual:
+              VisualId: 0a8f9706-876b-491c-b4ff-a2df78c15f9d
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: |-
+                    <visual-title>
+                      <block align="center">Case Created Overtime (days)</block>
+                    </visual-title>
+              Subtitle:
+                Visibility: VISIBLE
+              ChartConfiguration:
+                FieldWells:
+                  ComboChartAggregatedFieldWells:
+                    Category:
+                    - DateDimensionField:
+                        FieldId: CimaQSLT.timeCreated.2.1689052390292
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: timeCreated
+                        HierarchyId: CimaQSLT.timeCreated.2.1689052390292
+                    BarValues:
+                    - CategoricalMeasureField:
+                        FieldId: CimaQSLT.severityCode.2.1689052700659
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: severityCode
+                        AggregationFunction: COUNT
+                    Colors:
+                    - CategoricalDimensionField:
+                        FieldId: CimaQSLT.severityCode.2.1689044768911
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: severityCode
+                    LineValues: []
+                SortConfiguration:
+                  CategorySort:
+                  - FieldSort:
+                      FieldId: CimaQSLT.timeCreated.2.1689052390292
+                      Direction: ASC
+                  CategoryItemsLimit:
+                    OtherCategories: INCLUDE
+                  ColorItemsLimit:
+                    OtherCategories: INCLUDE
+                BarsArrangement: STACKED
+                CategoryAxis:
+                  TickLabelOptions:
+                    LabelOptions:
+                      Visibility: VISIBLE
+                    RotationAngle: 0
+                CategoryLabelOptions:
+                  Visibility: VISIBLE
+                  AxisLabelOptions:
+                  - CustomLabel: Create Date
+                    ApplyTo:
+                      FieldId: CimaQSLT.timeCreated.2.1689052390292
+                      Column:
+                        DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                        ColumnName: timeCreated
+                PrimaryYAxisDisplayOptions:
+                  TickLabelOptions:
+                    LabelOptions:
+                      FontConfiguration:
+                        FontSize:
+                          Relative: MEDIUM
+                PrimaryYAxisLabelOptions:
+                  AxisLabelOptions:
+                  - CustomLabel: Cases
+                    ApplyTo:
+                      FieldId: CimaQSLT.severityCode.2.1689052700659
+                      Column:
+                        DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                        ColumnName: severityCode
+                SecondaryYAxisDisplayOptions:
+                  TickLabelOptions:
+                    LabelOptions:
+                      FontConfiguration:
+                        FontSize:
+                          Relative: LARGE
+                Legend:
+                  Title:
+                    Visibility: VISIBLE
+                  Position: RIGHT
+                BarDataLabels:
+                  Visibility: HIDDEN
+                  Overlap: DISABLE_OVERLAP
+              Actions:
+              - CustomActionId: 1eea805a-216a-490f-a913-f9dd52a5991b
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              ColumnHierarchies:
+              - DateTimeHierarchy:
+                  HierarchyId: CimaQSLT.timeCreated.2.1689052390292
+          - PieChartVisual:
+              VisualId: f43808ff-d262-4a9e-b78a-8a3dcd8148e9
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: |-
+                    <visual-title>
+                      <block align="center">Cases by Status</block>
+                    </visual-title>
+              Subtitle:
+                Visibility: HIDDEN
+              ChartConfiguration:
+                FieldWells:
+                  PieChartAggregatedFieldWells:
+                    Category:
+                    - CategoricalDimensionField:
+                        FieldId: CimaQSLT.status.0.1689049333027
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: status
+                    Values: []
+                SortConfiguration:
+                  CategoryItemsLimit:
+                    OtherCategories: INCLUDE
+                  SmallMultiplesLimitConfiguration:
+                    OtherCategories: INCLUDE
+                DonutOptions:
+                  ArcOptions:
+                    ArcThickness: LARGE
+                  DonutCenterOptions:
+                    LabelVisibility: VISIBLE
+                Legend:
+                  Visibility: VISIBLE
+                  Title:
+                    Visibility: HIDDEN
+                  Position: BOTTOM
+                  Width: 100px
+                  Height: 39px
+                DataLabels:
+                  Visibility: VISIBLE
+                  CategoryLabelVisibility: HIDDEN
+                  MeasureLabelVisibility: VISIBLE
+                  Position: OUTSIDE
+                  LabelContent: PERCENT
+                  LabelFontConfiguration:
+                    FontSize:
+                      Relative: LARGE
+                  Overlap: DISABLE_OVERLAP
+                Tooltip:
+                  TooltipVisibility: VISIBLE
+                  SelectedTooltipType: BASIC
+                  FieldBasedTooltip:
+                    AggregationVisibility: HIDDEN
+                    TooltipTitleType: PRIMARY_VALUE
+                    TooltipFields:
+                    - FieldTooltipItem:
+                        FieldId: CimaQSLT.status.0.1689049333027
+                        Visibility: VISIBLE
+              Actions:
+              - CustomActionId: defa3b40-cf35-42aa-b23a-38d8c3ed509f
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              ColumnHierarchies: []
+          - InsightVisual:
+              VisualId: 32a4583f-05d8-49c6-a87a-ba32cbee08a0
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: |-
+                    <visual-title>
+                      <block align="center">Open Cases</block>
+                    </visual-title>
+              Subtitle:
+                Visibility: VISIBLE
+              InsightConfiguration:
+                Computations:
+                - TotalAggregation:
+                    ComputationId: 820ad081-ac55-424d-b940-d35d6a80e67a
+                    Name: TotalAggregate
+                    Value:
+                      CategoricalMeasureField:
+                        FieldId: CimaQSLT.status.1.1689047821779
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: status
+                        AggregationFunction: COUNT
+                CustomNarrative:
+                  Narrative: |-
+                    <narrative>
+                      <block align="center">
+                        <inline font-size="54.88px">
+                          <expression>TotalAggregate.totalAggregate.value</expression>
+                        </inline>
+                      </block>
+                    </narrative>
+              Actions:
+              - CustomActionId: 2a7b5aab-ea66-4448-8fd2-cacd352bdf5d
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+          - InsightVisual:
+              VisualId: 7778bf82-196d-4df2-9f65-3b292c39a903
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: |-
+                    <visual-title>
+                      <block align="center">Prod. System Impaired</block>
+                    </visual-title>
+              Subtitle:
+                Visibility: VISIBLE
+              InsightConfiguration:
+                Computations:
+                - TotalAggregation:
+                    ComputationId: 55216046-37d4-4970-8072-09cd511dc958
+                    Name: TotalAggregate
+                    Value:
+                      CategoricalMeasureField:
+                        FieldId: CimaQSLT.severityCode.1.1689043738551
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: severityCode
+                        AggregationFunction: COUNT
+                CustomNarrative:
+                  Narrative: |-
+                    <narrative>
+                      <block align="center">
+                        <inline font-size="54.88px">
+                          <expression>TotalAggregate.totalAggregate.value</expression>
+                        </inline>
+                      </block>
+                    </narrative>
+              Actions:
+              - CustomActionId: '069b02a6-9ba5-426c-9d25-33462abc5ce3'
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+          - InsightVisual:
+              VisualId: 3ae794ed-87a6-4f10-9679-a92605294aa1
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: |-
+                    <visual-title>
+                      <block align="center">System Impaired</block>
+                    </visual-title>
+              Subtitle:
+                Visibility: VISIBLE
+              InsightConfiguration:
+                Computations:
+                - TotalAggregation:
+                    ComputationId: 11db8d34-d87b-403e-b651-5de5da04234f
+                    Name: TotalAggregate
+                    Value:
+                      CategoricalMeasureField:
+                        FieldId: CimaQSLT.severityCode.1.1689043738551
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: severityCode
+                        AggregationFunction: COUNT
+                CustomNarrative:
+                  Narrative: |-
+                    <narrative>
+                      <block align="center">
+                        <inline font-size="54.88px">
+                          <expression>TotalAggregate.totalAggregate.value</expression>
+                        </inline>
+                      </block>
+                    </narrative>
+              Actions:
+              - CustomActionId: dc41ac5f-775f-426d-8b04-fe7408a7b532
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+          - InsightVisual:
+              VisualId: 53633222-baa4-4ed1-b066-e2d14becafa1
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: |-
+                    <visual-title>
+                      <block align="center">General Guidence</block>
+                    </visual-title>
+              Subtitle:
+                Visibility: VISIBLE
+              InsightConfiguration:
+                Computations:
+                - TotalAggregation:
+                    ComputationId: a3e292e0-6117-4aac-b1b8-08cb3cdc4f6f
+                    Name: TotalAggregate
+                    Value:
+                      CategoricalMeasureField:
+                        FieldId: CimaQSLT.severityCode.1.1689043738551
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: severityCode
+                        AggregationFunction: COUNT
+                CustomNarrative:
+                  Narrative: |-
+                    <narrative>
+                      <block align="center">
+                        <inline font-size="54.88px">
+                          <expression>TotalAggregate.totalAggregate.value</expression>
+                        </inline>
+                      </block>
+                    </narrative>
+              Actions:
+              - CustomActionId: 960bbc60-173a-4457-86fc-278f50f2b483
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+          - InsightVisual:
+              VisualId: 5879648c-ff4a-47e0-9a5a-52f39ee2cffb
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: |-
+                    <visual-title>
+                      <block align="center">Prod. System Down</block>
+                    </visual-title>
+              Subtitle:
+                Visibility: VISIBLE
+              InsightConfiguration:
+                Computations:
+                - TotalAggregation:
+                    ComputationId: 6cb5ab99-6c40-4307-a9ba-f68ca6a5de50
+                    Name: TotalAggregate
+                    Value:
+                      CategoricalMeasureField:
+                        FieldId: CimaQSLT.severityCode.1.1689043738551
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: severityCode
+                        AggregationFunction: COUNT
+                CustomNarrative:
+                  Narrative: |-
+                    <narrative>
+                      <block align="center">
+                        <inline font-size="54.88px">
+                          <expression>TotalAggregate.totalAggregate.value</expression>
+                        </inline>
+                      </block>
+                    </narrative>
+              Actions:
+              - CustomActionId: a9475ca8-ab76-42fe-b4ed-62049b6bf00a
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+          - InsightVisual:
+              VisualId: 3c790584-2609-4ead-ac2f-65c996658ff5
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: |-
+                    <visual-title>
+                      <block align="center">Business Critical</block>
+                    </visual-title>
+              Subtitle:
+                Visibility: VISIBLE
+              InsightConfiguration:
+                Computations:
+                - TotalAggregation:
+                    ComputationId: 93448a8a-2c88-4eed-b3fa-f19b39fdbab7
+                    Name: TotalAggregate
+                    Value:
+                      CategoricalMeasureField:
+                        FieldId: CimaQSLT.severityCode.1.1689043738551
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: severityCode
+                        AggregationFunction: COUNT
+                CustomNarrative:
+                  Narrative: |-
+                    <narrative>
+                      <block align="center">
+                        <inline font-size="54.88px">
+                          <expression>TotalAggregate.totalAggregate.value</expression>
+                        </inline>
+                      </block>
+                    </narrative>
+              Actions:
+              - CustomActionId: 3648c1b3-dfe4-4e3f-aa29-f16e0df75520
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+          - TableVisual:
+              VisualId: dd0c62a0-365f-4f61-83ba-24bdf5ac3cc1
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: "<visual-title>All cases</visual-title>"
+              Subtitle:
+                Visibility: VISIBLE
+              ChartConfiguration:
+                FieldWells:
+                  TableAggregatedFieldWells:
+                    GroupBy:
+                    - CategoricalDimensionField:
+                        FieldId: CimaQSLT.displayId.9.1687919427491
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: displayId
+                    - CategoricalDimensionField:
+                        FieldId: CimaQSLT.account.8.1687919371654
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: account
+                    - CategoricalDimensionField:
+                        FieldId: CimaQSLT.accountName.11.1689045984380
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: accountName
+                    - CategoricalDimensionField:
+                        FieldId: CimaQSLT.serviceCode.2.1687919348335
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: serviceCode
+                    - CategoricalDimensionField:
+                        FieldId: CimaQSLT.severityCode.3.1687919350921
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: severityCode
+                    - CategoricalDimensionField:
+                        FieldId: CimaQSLT.status.9.1687919551231
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: status
+                    - CategoricalDimensionField:
+                        FieldId: CimaQSLT.submittedBy.4.1687919355696
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: submittedBy
+                    - CategoricalDimensionField:
+                        FieldId: CimaQSLT.submittedRole.12.1689050871113
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: submittedRole
+                    - CategoricalDimensionField:
+                        FieldId: CimaQSLT.subject.1.1687919336579
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: subject
+                    - DateDimensionField:
+                        FieldId: CimaQSLT.timeCreated.5.1687919363247
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: timeCreated
+                    - DateDimensionField:
+                        FieldId: CimaQSLT.resolveTime.6.1687919365309
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: resolveTime
+                    - NumericalDimensionField:
+                        FieldId: b1592567-82d5-422b-bd31-b86898db173c.10.1687920272443
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: DaysToResolve
+                    - CategoricalDimensionField:
+                        FieldId: CimaQSLT.categoryCode.7.1687919369041
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: categoryCode
+                    Values: []
+                SortConfiguration: {}
+                TableOptions:
+                  HeaderStyle:
+                    HorizontalTextAlignment: AUTO
+                    VerticalTextAlignment: MIDDLE
+                    BackgroundColor: "#9FDEF1"
+                  CellStyle:
+                    Height: 25
+                TotalOptions:
+                  TotalsVisibility: HIDDEN
+                  Placement: END
+                FieldOptions:
+                  SelectedFieldOptions:
+                  - FieldId: CimaQSLT.displayId.9.1687919427491
+                    CustomLabel: Case ID
+                  - FieldId: CimaQSLT.account.8.1687919371654
+                    CustomLabel: Account
+                  - FieldId: CimaQSLT.accountName.11.1689045984380
+                    CustomLabel: Account Name
+                  - FieldId: CimaQSLT.serviceCode.2.1687919348335
+                    CustomLabel: Service
+                  - FieldId: CimaQSLT.severityCode.3.1687919350921
+                    CustomLabel: Severity
+                  - FieldId: CimaQSLT.status.9.1687919551231
+                    CustomLabel: Status
+                  - FieldId: CimaQSLT.submittedBy.4.1687919355696
+                    CustomLabel: Submitted by
+                  - FieldId: CimaQSLT.subject.1.1687919336579
+                    CustomLabel: Subject
+                  - FieldId: CimaQSLT.timeCreated.5.1687919363247
+                    CustomLabel: Created on
+                  - FieldId: CimaQSLT.resolveTime.6.1687919365309
+                    CustomLabel: Resolved on
+                  - FieldId: b1592567-82d5-422b-bd31-b86898db173c.10.1687920272443
+                    CustomLabel: Time to resolve (days)
+                  - FieldId: CimaQSLT.categoryCode.7.1687919369041
+                    CustomLabel: Category
+                  Order:
+                  - CimaQSLT.displayId.9.1687919427491
+                  - CimaQSLT.account.8.1687919371654
+                  - CimaQSLT.accountName.11.1689045984380
+                  - CimaQSLT.serviceCode.2.1687919348335
+                  - CimaQSLT.severityCode.3.1687919350921
+                  - CimaQSLT.status.9.1687919551231
+                  - CimaQSLT.submittedBy.4.1687919355696
+                  - CimaQSLT.submittedRole.12.1689050871113
+                  - CimaQSLT.subject.1.1687919336579
+                  - CimaQSLT.timeCreated.5.1687919363247
+                  - CimaQSLT.resolveTime.6.1687919365309
+                  - b1592567-82d5-422b-bd31-b86898db173c.10.1687920272443
+                  - CimaQSLT.categoryCode.7.1687919369041
+              Actions:
+              - CustomActionId: ad19ca40-a483-4bfc-8c9b-c425c26e48dd
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+          - InsightVisual:
+              VisualId: 2c3503fa-d736-467f-9fca-c25c152fc9de
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: |-
+                    <visual-title>
+                      <block align="center">Total Number of Cases</block>
+                    </visual-title>
+              Subtitle:
+                Visibility: VISIBLE
+              InsightConfiguration:
+                Computations:
+                - TotalAggregation:
+                    ComputationId: 0b12d7f6-95ff-42a3-894a-29ee23e24e35
+                    Name: TotalAggregate
+                    Value:
+                      CategoricalMeasureField:
+                        FieldId: CimaQSLT.severityCode.1.1689043738551
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: severityCode
+                        AggregationFunction: COUNT
+                CustomNarrative:
+                  Narrative: |-
+                    <narrative>
+                      <block align="center">
+                        <inline font-size="54.88px">
+                          <expression>TotalAggregate.totalAggregate.value</expression>
+                        </inline>
+                      </block>
+                    </narrative>
+              Actions:
+              - CustomActionId: 2edb2e9a-cb03-4f94-a161-0e6d51b9e4d6
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+          - BarChartVisual:
+              VisualId: 90b0e5e2-3aef-45cb-8c72-1f3fe7bee3d5
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: |-
+                    <visual-title>
+                      <block align="center">Cases by Accounts</block>
+                    </visual-title>
+              Subtitle:
+                Visibility: VISIBLE
+              ChartConfiguration:
+                FieldWells:
+                  BarChartAggregatedFieldWells:
+                    Category:
+                    - CategoricalDimensionField:
+                        FieldId: CimaQSLT.accountName.0.1689044488355
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: accountName
+                        FormatConfiguration: {}
+                    Values: []
+                    Colors: []
+                SortConfiguration:
+                  CategoryItemsLimit:
+                    OtherCategories: INCLUDE
+                  ColorItemsLimit:
+                    OtherCategories: INCLUDE
+                  SmallMultiplesLimitConfiguration:
+                    OtherCategories: INCLUDE
+                Orientation: HORIZONTAL
+                BarsArrangement: CLUSTERED
+                ValueAxis:
+                  TickLabelOptions:
+                    LabelOptions:
+                      Visibility: VISIBLE
+                      FontConfiguration:
+                        FontSize:
+                          Relative: MEDIUM
+                DataLabels:
+                  Visibility: HIDDEN
+                  Overlap: DISABLE_OVERLAP
+                Tooltip:
+                  TooltipVisibility: VISIBLE
+                  SelectedTooltipType: BASIC
+                  FieldBasedTooltip:
+                    AggregationVisibility: HIDDEN
+                    TooltipTitleType: PRIMARY_VALUE
+                    TooltipFields:
+                    - FieldTooltipItem:
+                        FieldId: CimaQSLT.accountName.0.1689044488355
+                        Visibility: VISIBLE
+              Actions:
+              - CustomActionId: 28fd06ab-4039-43a9-a44e-7c76908eae7b
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              ColumnHierarchies: []
+          - ComboChartVisual:
+              VisualId: 8be3380a-5745-4b4a-86eb-8eca30fd4671
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: |-
+                    <visual-title>
+                      <block align="center">Long Running Cases</block>
+                    </visual-title>
+              Subtitle:
+                Visibility: VISIBLE
+              ChartConfiguration:
+                FieldWells:
+                  ComboChartAggregatedFieldWells:
+                    Category:
+                    - DateDimensionField:
+                        FieldId: CimaQSLT.timeCreated.2.1689052241259
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: timeCreated
+                        HierarchyId: CimaQSLT.timeCreated.2.1689052241259
+                    BarValues:
+                    - NumericalMeasureField:
+                        FieldId: cf67e371-0013-4b9e-85e7-99c7d6384727.2.1689049560639
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: caseAge
+                        AggregationFunction:
+                          SimpleNumericalAggregation: MAX
+                    Colors:
+                    - CategoricalDimensionField:
+                        FieldId: CimaQSLT.displayId.2.1689051803435
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: displayId
+                    LineValues: []
+                SortConfiguration:
+                  CategorySort:
+                  - FieldSort:
+                      FieldId: CimaQSLT.timeCreated.2.1689052241259
+                      Direction: ASC
+                  CategoryItemsLimit:
+                    OtherCategories: INCLUDE
+                  ColorSort:
+                  - FieldSort:
+                      FieldId: CimaQSLT.displayId.2.1689051803435
+                      Direction: DESC
+                  ColorItemsLimit:
+                    OtherCategories: INCLUDE
+                BarsArrangement: STACKED
+                CategoryAxis:
+                  TickLabelOptions:
+                    LabelOptions:
+                      Visibility: VISIBLE
+                    RotationAngle: 0
+                  AxisLineVisibility: VISIBLE
+                  ScrollbarOptions:
+                    Visibility: VISIBLE
+                CategoryLabelOptions:
+                  Visibility: VISIBLE
+                  SortIconVisibility: VISIBLE
+                  AxisLabelOptions:
+                  - CustomLabel: Create Date
+                    ApplyTo:
+                      FieldId: CimaQSLT.timeCreated.2.1689052241259
+                      Column:
+                        DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                        ColumnName: timeCreated
+                PrimaryYAxisDisplayOptions:
+                  TickLabelOptions:
+                    LabelOptions:
+                      Visibility: VISIBLE
+                      FontConfiguration:
+                        FontSize:
+                          Relative: MEDIUM
+                PrimaryYAxisLabelOptions:
+                  Visibility: VISIBLE
+                  SortIconVisibility: VISIBLE
+                  AxisLabelOptions:
+                  - CustomLabel: Age(Days)
+                    ApplyTo:
+                      FieldId: cf67e371-0013-4b9e-85e7-99c7d6384727.2.1689049560639
+                      Column:
+                        DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                        ColumnName: caseAge
+                SecondaryYAxisDisplayOptions:
+                  TickLabelOptions:
+                    LabelOptions:
+                      FontConfiguration:
+                        FontSize:
+                          Relative: LARGE
+                Legend:
+                  Visibility: HIDDEN
+                  Title:
+                    Visibility: VISIBLE
+                  Position: RIGHT
+                BarDataLabels:
+                  Visibility: HIDDEN
+                  Overlap: DISABLE_OVERLAP
+                VisualPalette:
+                  ChartColor: "#9FDEF1"
+              Actions:
+              - CustomActionId: 8bff60a2-2547-4964-afc9-60307be29e05
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              ColumnHierarchies:
+              - DateTimeHierarchy:
+                  HierarchyId: CimaQSLT.timeCreated.2.1689052241259
+          - PieChartVisual:
+              VisualId: d1e68cd0-f39a-4932-8d3f-10aabd516b10
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: |-
+                    <visual-title>
+                      <block align="center">Cases by Severity</block>
+                    </visual-title>
+              Subtitle:
+                Visibility: HIDDEN
+              ChartConfiguration:
+                FieldWells:
+                  PieChartAggregatedFieldWells:
+                    Category:
+                    - CategoricalDimensionField:
+                        FieldId: CimaQSLT.severityCode.0.1689045112372
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: severityCode
+                    Values: []
+                SortConfiguration:
+                  CategoryItemsLimit:
+                    OtherCategories: INCLUDE
+                  SmallMultiplesLimitConfiguration:
+                    OtherCategories: INCLUDE
+                DonutOptions:
+                  ArcOptions:
+                    ArcThickness: LARGE
+                  DonutCenterOptions:
+                    LabelVisibility: VISIBLE
+                Legend:
+                  Visibility: VISIBLE
+                  Title:
+                    Visibility: HIDDEN
+                  Position: BOTTOM
+                  Width: 100px
+                  Height: 39px
+                DataLabels:
+                  Visibility: VISIBLE
+                  CategoryLabelVisibility: HIDDEN
+                  MeasureLabelVisibility: VISIBLE
+                  Position: OUTSIDE
+                  LabelContent: PERCENT
+                  LabelFontConfiguration:
+                    FontSize:
+                      Relative: LARGE
+                  Overlap: DISABLE_OVERLAP
+                Tooltip:
+                  TooltipVisibility: VISIBLE
+                  SelectedTooltipType: BASIC
+                  FieldBasedTooltip:
+                    AggregationVisibility: HIDDEN
+                    TooltipTitleType: PRIMARY_VALUE
+                    TooltipFields:
+                    - FieldTooltipItem:
+                        FieldId: CimaQSLT.severityCode.0.1689045112372
+                        Visibility: VISIBLE
+              Actions:
+              - CustomActionId: acb14346-dcd3-4ab6-9128-65d54db9d2a8
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              ColumnHierarchies: []
+          - TreeMapVisual:
+              VisualId: 642adb4a-b049-4b41-8395-1706119a06d8
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: |-
+                    <visual-title>
+                      <block align="center">Cases by Service</block>
+                    </visual-title>
+              Subtitle:
+                Visibility: HIDDEN
+              ChartConfiguration:
+                FieldWells:
+                  TreeMapAggregatedFieldWells:
+                    Groups:
+                    - CategoricalDimensionField:
+                        FieldId: CimaQSLT.serviceCode.0.1689045606309
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: serviceCode
+                    Sizes: []
+                    Colors: []
+                SortConfiguration:
+                  TreeMapGroupItemsLimitConfiguration:
+                    OtherCategories: INCLUDE
+                GroupLabelOptions:
+                  Visibility: HIDDEN
+                DataLabels:
+                  Visibility: VISIBLE
+                  Overlap: DISABLE_OVERLAP
+                Tooltip:
+                  TooltipVisibility: VISIBLE
+                  SelectedTooltipType: BASIC
+                  FieldBasedTooltip:
+                    AggregationVisibility: HIDDEN
+                    TooltipTitleType: PRIMARY_VALUE
+                    TooltipFields:
+                    - FieldTooltipItem:
+                        FieldId: CimaQSLT.serviceCode.0.1689045606309
+                        Visibility: VISIBLE
+              Actions:
+              - CustomActionId: af1c5b2b-c97e-470a-ae99-fe34a506888d
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              ColumnHierarchies: []
+          Layouts:
+          - Configuration:
+              GridLayout:
+                Elements:
+                - ElementId: 757847a5-faf7-4218-bf04-ab39e37fee26
+                  ElementType: FILTER_CONTROL
+                  ColumnIndex: 0
+                  ColumnSpan: 7
+                  RowIndex: 0
+                  RowSpan: 3
+                - ElementId: 32a4583f-05d8-49c6-a87a-ba32cbee08a0
+                  ElementType: VISUAL
+                  ColumnIndex: 7
+                  ColumnSpan: 5
+                  RowIndex: 0
+                  RowSpan: 3
+                - ElementId: 2c3503fa-d736-467f-9fca-c25c152fc9de
+                  ElementType: VISUAL
+                  ColumnIndex: 12
+                  ColumnSpan: 4
+                  RowIndex: 0
+                  RowSpan: 3
+                - ElementId: 3c790584-2609-4ead-ac2f-65c996658ff5
+                  ElementType: VISUAL
+                  ColumnIndex: 16
+                  ColumnSpan: 4
+                  RowIndex: 0
+                  RowSpan: 3
+                - ElementId: 5879648c-ff4a-47e0-9a5a-52f39ee2cffb
+                  ElementType: VISUAL
+                  ColumnIndex: 20
+                  ColumnSpan: 4
+                  RowIndex: 0
+                  RowSpan: 3
+                - ElementId: 7778bf82-196d-4df2-9f65-3b292c39a903
+                  ElementType: VISUAL
+                  ColumnIndex: 24
+                  ColumnSpan: 4
+                  RowIndex: 0
+                  RowSpan: 3
+                - ElementId: 3ae794ed-87a6-4f10-9679-a92605294aa1
+                  ElementType: VISUAL
+                  ColumnIndex: 28
+                  ColumnSpan: 4
+                  RowIndex: 0
+                  RowSpan: 3
+                - ElementId: 53633222-baa4-4ed1-b066-e2d14becafa1
+                  ElementType: VISUAL
+                  ColumnIndex: 32
+                  ColumnSpan: 4
+                  RowIndex: 0
+                  RowSpan: 3
+                - ElementId: f43808ff-d262-4a9e-b78a-8a3dcd8148e9
+                  ElementType: VISUAL
+                  ColumnIndex: 0
+                  ColumnSpan: 8
+                  RowIndex: 3
+                  RowSpan: 6
+                - ElementId: 90b0e5e2-3aef-45cb-8c72-1f3fe7bee3d5
+                  ElementType: VISUAL
+                  ColumnIndex: 8
+                  ColumnSpan: 9
+                  RowIndex: 3
+                  RowSpan: 12
+                - ElementId: 642adb4a-b049-4b41-8395-1706119a06d8
+                  ElementType: VISUAL
+                  ColumnIndex: 17
+                  ColumnSpan: 19
+                  RowIndex: 3
+                  RowSpan: 12
+                - ElementId: d1e68cd0-f39a-4932-8d3f-10aabd516b10
+                  ElementType: VISUAL
+                  ColumnIndex: 0
+                  ColumnSpan: 8
+                  RowIndex: 9
+                  RowSpan: 6
+                - ElementId: 8be3380a-5745-4b4a-86eb-8eca30fd4671
+                  ElementType: VISUAL
+                  ColumnIndex: 0
+                  ColumnSpan: 17
+                  RowIndex: 15
+                  RowSpan: 9
+                - ElementId: 0a8f9706-876b-491c-b4ff-a2df78c15f9d
+                  ElementType: VISUAL
+                  ColumnIndex: 17
+                  ColumnSpan: 19
+                  RowIndex: 15
+                  RowSpan: 9
+                - ElementId: dd0c62a0-365f-4f61-83ba-24bdf5ac3cc1
+                  ElementType: VISUAL
+                  ColumnIndex: 0
+                  ColumnSpan: 36
+                  RowIndex: 24
+                  RowSpan: 12
+                CanvasSizeOptions:
+                  ScreenCanvasSizeOptions:
+                    ResizeOption: RESPONSIVE
+          SheetControlLayouts:
+          - Configuration:
+              GridLayout:
+                Elements:
+                - ElementId: d3836243-7c39-4a09-b6ba-99228b792f61
+                  ElementType: FILTER_CONTROL
+                  ColumnIndex: 0
+                  ColumnSpan: 2
+                  RowIndex: 0
+                  RowSpan: 1
+                - ElementId: 653472fc-ee45-4e44-9b84-cce3cbac95cb
+                  ElementType: FILTER_CONTROL
+                  ColumnIndex: 2
+                  ColumnSpan: 2
+                  RowIndex: 0
+                  RowSpan: 1
+                - ElementId: e5000338-6f12-4e7d-8173-34efdc62a04b
+                  ElementType: FILTER_CONTROL
+                  ColumnIndex: 4
+                  ColumnSpan: 2
+                  RowIndex: 0
+                  RowSpan: 1
+                - ElementId: a603a305-2b66-4fa2-8d15-2188391f7f58
+                  ElementType: FILTER_CONTROL
+                  ColumnIndex: 6
+                  ColumnSpan: 2
+                  RowIndex: 0
+                  RowSpan: 1
+          ContentType: INTERACTIVE
+        - SheetId: b36011b3-91fe-43b4-8f37-1296799e7fd2
+          Name: Insights
+          Visuals:
+          - InsightVisual:
+              VisualId: 2362e241-9309-488d-92a6-07e1c519596b
+              Title:
+                Visibility: HIDDEN
+                FormatText:
+                  PlainText: Insight
+              Subtitle:
+                Visibility: HIDDEN
+              InsightConfiguration:
+                Computations:
+                - TopBottomRanked:
+                    ComputationId: 8327f2fc-1e80-4d41-9553-8e587b23496a
+                    Name: Top
+                    Category:
+                      CategoricalDimensionField:
+                        FieldId: CimaQSLT.status.1.1687923388567
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: status
+                    Value:
+                      CategoricalMeasureField:
+                        FieldId: CimaQSLT.caseId.1.1687923319006
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: caseId
+                        AggregationFunction: COUNT
+                    ResultSize: 3
+                    Type: TOP
+              Actions: []
+              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+          - InsightVisual:
+              VisualId: d9cf8a1a-3af6-46b9-9a2c-470aa9d1496e
+              Title:
+                Visibility: HIDDEN
+                FormatText:
+                  PlainText: Insight
+              Subtitle:
+                Visibility: HIDDEN
+              InsightConfiguration:
+                Computations:
+                - TopBottomRanked:
+                    ComputationId: feda5e3b-8155-4d91-b1c5-57eeec6b5298
+                    Name: Top
+                    Category:
+                      CategoricalDimensionField:
+                        FieldId: CimaQSLT.account.0.1687923314165
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: account
+                    Value:
+                      CategoricalMeasureField:
+                        FieldId: CimaQSLT.caseId.1.1687923319006
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: caseId
+                        AggregationFunction: COUNT
+                    ResultSize: 3
+                    Type: TOP
+              Actions: []
+              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+          - InsightVisual:
+              VisualId: 6e511039-3356-4e33-bb70-e5633d7b5ca7
+              Title:
+                Visibility: HIDDEN
+                FormatText:
+                  PlainText: Insight
+              Subtitle:
+                Visibility: HIDDEN
+              InsightConfiguration:
+                Computations:
+                - TopBottomRanked:
+                    ComputationId: fa705039-094c-485f-bed2-59783f3728db
+                    Name: Top
+                    Category:
+                      CategoricalDimensionField:
+                        FieldId: CimaQSLT.severityCode.1.1687923374182
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: severityCode
+                    Value:
+                      CategoricalMeasureField:
+                        FieldId: CimaQSLT.caseId.1.1687923319006
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: caseId
+                        AggregationFunction: COUNT
+                    ResultSize: 3
+                    Type: TOP
+              Actions: []
+              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+          - InsightVisual:
+              VisualId: ad325f4c-b1f1-486f-87ee-78644c42ae3b
+              Title:
+                Visibility: HIDDEN
+                FormatText:
+                  PlainText: Insight
+              Subtitle:
+                Visibility: HIDDEN
+              InsightConfiguration:
+                Computations:
+                - TopBottomRanked:
+                    ComputationId: 5212f680-6099-4ecb-9745-c90a286255bb
+                    Name: Top
+                    Category:
+                      NumericalDimensionField:
+                        FieldId: b1592567-82d5-422b-bd31-b86898db173c.2.1687923355437
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: DaysToResolve
+                    Value:
+                      CategoricalMeasureField:
+                        FieldId: CimaQSLT.caseId.1.1687923319006
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: caseId
+                        AggregationFunction: COUNT
+                    ResultSize: 3
+                    Type: TOP
+              Actions: []
+              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+          - InsightVisual:
+              VisualId: b2d568d9-1254-4c94-83d0-ea1b199506fd
+              Title:
+                Visibility: HIDDEN
+                FormatText:
+                  PlainText: Insight
+              Subtitle:
+                Visibility: HIDDEN
+              InsightConfiguration:
+                Computations:
+                - TopBottomRanked:
+                    ComputationId: fbffb461-b46b-4bf0-9cd4-3c7f65c1396e
+                    Name: Bottom
+                    Category:
+                      CategoricalDimensionField:
+                        FieldId: CimaQSLT.status.0.1687921759500
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: status
+                    Value:
+                      CategoricalMeasureField:
+                        FieldId: CimaQSLT.caseId.1.1687921762839
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: caseId
+                        AggregationFunction: COUNT
+                    ResultSize: 3
+                    Type: BOTTOM
+              Actions: []
+              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+          - InsightVisual:
+              VisualId: e7e6aea8-1ec9-495e-bad4-e555c752ac17
+              Title:
+                Visibility: HIDDEN
+                FormatText:
+                  PlainText: Insight
+              Subtitle:
+                Visibility: HIDDEN
+              InsightConfiguration:
+                Computations:
+                - TopBottomRanked:
+                    ComputationId: e81f1961-c1b6-42f1-b8df-1e5d9007d595
+                    Name: Bottom
+                    Category:
+                      CategoricalDimensionField:
+                        FieldId: CimaQSLT.serviceCode.0.1687921732520
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: serviceCode
+                    Value:
+                      CategoricalMeasureField:
+                        FieldId: CimaQSLT.caseId.1.1687921734783
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: caseId
+                        AggregationFunction: COUNT
+                    ResultSize: 3
+                    Type: BOTTOM
+              Actions: []
+              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+          - InsightVisual:
+              VisualId: 8e7613d0-225c-4b14-a485-04b38da5ec14
+              Title:
+                Visibility: HIDDEN
+                FormatText:
+                  PlainText: Insight
+              Subtitle:
+                Visibility: HIDDEN
+              InsightConfiguration:
+                Computations:
+                - TopBottomRanked:
+                    ComputationId: 06506c7e-edff-4928-920b-c8be45867ac6
+                    Name: Bottom
+                    Category:
+                      CategoricalDimensionField:
+                        FieldId: CimaQSLT.severityCode.0.1687921716506
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: severityCode
+                    Value:
+                      CategoricalMeasureField:
+                        FieldId: CimaQSLT.caseId.1.1687921718650
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: caseId
+                        AggregationFunction: COUNT
+                    ResultSize: 3
+                    Type: BOTTOM
+              Actions: []
+              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+          - InsightVisual:
+              VisualId: 034daf85-38ac-4927-a4cf-9cb743f37226
+              Title:
+                Visibility: HIDDEN
+                FormatText:
+                  PlainText: Insight
+              Subtitle:
+                Visibility: HIDDEN
+              InsightConfiguration:
+                Computations:
+                - TopBottomRanked:
+                    ComputationId: 3ddaf1b9-6845-4fb7-91f6-b6c0fac77202
+                    Name: Bottom
+                    Category:
+                      NumericalDimensionField:
+                        FieldId: b1592567-82d5-422b-bd31-b86898db173c.0.1687921698791
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: DaysToResolve
+                    Value:
+                      CategoricalMeasureField:
+                        FieldId: CimaQSLT.caseId.1.1687921703138
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: caseId
+                        AggregationFunction: COUNT
+                    ResultSize: 3
+                    Type: BOTTOM
+              Actions: []
+              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+          - InsightVisual:
+              VisualId: 4bfd47d5-57b4-4f53-b532-f980132c2e5b
+              Title:
+                Visibility: HIDDEN
+                FormatText:
+                  PlainText: Insight
+              Subtitle:
+                Visibility: HIDDEN
+              InsightConfiguration:
+                Computations:
+                - TopBottomRanked:
+                    ComputationId: db930618-5fa3-4e50-9da1-7b79ef5d8b2a
+                    Name: Bottom
+                    Category:
+                      CategoricalDimensionField:
+                        FieldId: CimaQSLT.account.0.1687921682395
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: account
+                    Value:
+                      CategoricalMeasureField:
+                        FieldId: CimaQSLT.caseId.1.1687921687973
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: caseId
+                        AggregationFunction: COUNT
+                    ResultSize: 3
+                    Type: BOTTOM
+              Actions: []
+              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+          - InsightVisual:
+              VisualId: a1cf4804-cd85-4bd0-ae75-b8dc70aefe5c
+              Title:
+                Visibility: HIDDEN
+                FormatText:
+                  PlainText: Insight
+              Subtitle:
+                Visibility: HIDDEN
+              InsightConfiguration:
+                Computations:
+                - TopBottomRanked:
+                    ComputationId: bc50ce04-4400-43b0-a134-45e6e08b62a4
+                    Name: Top
+                    Category:
+                      CategoricalDimensionField:
+                        FieldId: CimaQSLT.account.0.1687923314165
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: account
+                    Value:
+                      CategoricalMeasureField:
+                        FieldId: CimaQSLT.caseId.1.1687923319006
+                        Column:
+                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          ColumnName: caseId
+                        AggregationFunction: COUNT
+                    ResultSize: 3
+                    Type: TOP
+              Actions: []
+              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+          Layouts:
+          - Configuration:
+              GridLayout:
+                Elements:
+                - ElementId: 4bfd47d5-57b4-4f53-b532-f980132c2e5b
+                  ElementType: VISUAL
+                  ColumnIndex: 0
+                  ColumnSpan: 7
+                  RowIndex: 0
+                  RowSpan: 4
+                - ElementId: 034daf85-38ac-4927-a4cf-9cb743f37226
+                  ElementType: VISUAL
+                  ColumnIndex: 7
+                  ColumnSpan: 7
+                  RowIndex: 0
+                  RowSpan: 4
+                - ElementId: 8e7613d0-225c-4b14-a485-04b38da5ec14
+                  ElementType: VISUAL
+                  ColumnIndex: 14
+                  ColumnSpan: 7
+                  RowIndex: 0
+                  RowSpan: 4
+                - ElementId: e7e6aea8-1ec9-495e-bad4-e555c752ac17
+                  ElementType: VISUAL
+                  ColumnIndex: 21
+                  ColumnSpan: 7
+                  RowIndex: 0
+                  RowSpan: 4
+                - ElementId: b2d568d9-1254-4c94-83d0-ea1b199506fd
+                  ElementType: VISUAL
+                  ColumnIndex: 28
+                  ColumnSpan: 7
+                  RowIndex: 0
+                  RowSpan: 4
+                - ElementId: a1cf4804-cd85-4bd0-ae75-b8dc70aefe5c
+                  ElementType: VISUAL
+                  ColumnIndex: 0
+                  ColumnSpan: 7
+                  RowIndex: 4
+                  RowSpan: 4
+                - ElementId: ad325f4c-b1f1-486f-87ee-78644c42ae3b
+                  ElementType: VISUAL
+                  ColumnIndex: 7
+                  ColumnSpan: 7
+                  RowIndex: 4
+                  RowSpan: 4
+                - ElementId: 6e511039-3356-4e33-bb70-e5633d7b5ca7
+                  ElementType: VISUAL
+                  ColumnIndex: 14
+                  ColumnSpan: 7
+                  RowIndex: 4
+                  RowSpan: 4
+                - ElementId: d9cf8a1a-3af6-46b9-9a2c-470aa9d1496e
+                  ElementType: VISUAL
+                  ColumnIndex: 21
+                  ColumnSpan: 7
+                  RowIndex: 4
+                  RowSpan: 4
+                - ElementId: 2362e241-9309-488d-92a6-07e1c519596b
+                  ElementType: VISUAL
+                  ColumnIndex: 28
+                  ColumnSpan: 7
+                  RowIndex: 4
+                  RowSpan: 4
+                CanvasSizeOptions:
+                  ScreenCanvasSizeOptions:
+                    ResizeOption: RESPONSIVE
+          ContentType: INTERACTIVE
+        CalculatedFields:
+        - DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+          Name: DaysToResolve
+          Expression: dateDiff(timeCreated, resolveTime,"DD")
+        - DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+          Name: caseAge
+          Expression: dateDiff(timeCreated,now(),'DD')
+        ParameterDeclarations: []
+        FilterGroups:
+        - FilterGroupId: 16d9d1ae-cf59-4428-a6bc-37ead8d16442
+          Filters:
+          - CategoryFilter:
+              FilterId: 0ec99f49-5caa-4df3-a5e4-0e0fd4dc53ba
+              Column:
+                DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                ColumnName: account
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  SelectAllOptions: FILTER_ALL_VALUES
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 95d28580-bc1b-4bae-9cd7-f6a9c207df49
+                Scope: ALL_VISUALS
+          Status: ENABLED
+          CrossDataset: ALL_DATASETS
+        - FilterGroupId: 7856ec27-27bc-4669-b6e7-d98e509564b3
+          Filters:
+          - CategoryFilter:
+              FilterId: a6649615-e2be-4f9b-ad0b-8022795d2c5d
+              Column:
+                DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                ColumnName: severityCode
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  SelectAllOptions: FILTER_ALL_VALUES
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 95d28580-bc1b-4bae-9cd7-f6a9c207df49
+                Scope: ALL_VISUALS
+          Status: ENABLED
+          CrossDataset: ALL_DATASETS
+        - FilterGroupId: bccb415c-5240-4eb3-a818-2935d75f5947
+          Filters:
+          - CategoryFilter:
+              FilterId: d1e2cbed-0320-451e-a7d9-906d4bcbbed4
+              Column:
+                DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                ColumnName: serviceCode
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  SelectAllOptions: FILTER_ALL_VALUES
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 95d28580-bc1b-4bae-9cd7-f6a9c207df49
+                Scope: ALL_VISUALS
+          Status: ENABLED
+          CrossDataset: ALL_DATASETS
+        - FilterGroupId: 1d53b3e1-c3ed-4a4a-9f80-169dd302a85d
+          Filters:
+          - CategoryFilter:
+              FilterId: b4cbf505-6863-46b6-927b-156f2e67288f
+              Column:
+                DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                ColumnName: submittedBy
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  SelectAllOptions: FILTER_ALL_VALUES
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 95d28580-bc1b-4bae-9cd7-f6a9c207df49
+                Scope: ALL_VISUALS
+          Status: ENABLED
+          CrossDataset: ALL_DATASETS
+        - FilterGroupId: 4f265930-5bf2-48b1-9ef1-363a189e099f
+          Filters:
+          - RelativeDatesFilter:
+              FilterId: 5c93d8a7-d8eb-4a01-a4e9-3640082d19da
+              Column:
+                DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                ColumnName: timeCreated
+              AnchorDateConfiguration:
+                AnchorOption: NOW
+              MinimumGranularity: DAY
+              TimeGranularity: YEAR
+              RelativeDateType: LAST
+              RelativeDateValue: 3
+              NullOption: NON_NULLS_ONLY
+              ExcludePeriodConfiguration:
+                Amount: 1
+                Granularity: MONTH
+                Status: ENABLED
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 95d28580-bc1b-4bae-9cd7-f6a9c207df49
+                Scope: ALL_VISUALS
+          Status: ENABLED
+          CrossDataset: ALL_DATASETS
+        - FilterGroupId: 31a18a77-fa9b-478d-ac97-65a7f028ab57
+          Filters:
+          - CategoryFilter:
+              FilterId: 305ff691-4d3b-42b2-ac62-2678bddc7f4f
+              Column:
+                DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                ColumnName: severityCode
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - critical
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 95d28580-bc1b-4bae-9cd7-f6a9c207df49
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - 3c790584-2609-4ead-ac2f-65c996658ff5
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: f59cda58-1222-434c-9701-7e7cb3307100
+          Filters:
+          - CategoryFilter:
+              FilterId: ebda1961-71a0-4eb7-adc1-068ccdf3a2ff
+              Column:
+                DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                ColumnName: severityCode
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - urgent
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 95d28580-bc1b-4bae-9cd7-f6a9c207df49
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - 5879648c-ff4a-47e0-9a5a-52f39ee2cffb
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: d8facf72-4535-45d0-9559-bfffadaa415a
+          Filters:
+          - CategoryFilter:
+              FilterId: b521ff00-9dbf-4af0-87cc-f264a9ea940c
+              Column:
+                DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                ColumnName: severityCode
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - low
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 95d28580-bc1b-4bae-9cd7-f6a9c207df49
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - 53633222-baa4-4ed1-b066-e2d14becafa1
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: c6de80bf-3eea-4276-9aad-1d67969edeca
+          Filters:
+          - CategoryFilter:
+              FilterId: 78743881-27ff-4b06-8d99-4a8b5aea8fab
+              Column:
+                DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                ColumnName: severityCode
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - normal
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 95d28580-bc1b-4bae-9cd7-f6a9c207df49
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - 3ae794ed-87a6-4f10-9679-a92605294aa1
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: 269d3c04-8800-4145-a095-b5adbeb6d867
+          Filters:
+          - CategoryFilter:
+              FilterId: ad77b612-f17b-40ed-8c52-95224bce7118
+              Column:
+                DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                ColumnName: severityCode
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - high
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 95d28580-bc1b-4bae-9cd7-f6a9c207df49
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - 7778bf82-196d-4df2-9f65-3b292c39a903
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: 9018fe2a-0fcd-4e2f-9c2a-6ca44a54a992
+          Filters:
+          - CategoryFilter:
+              FilterId: a542ecf3-f38a-4bee-b5da-136d7debf23a
+              Column:
+                DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                ColumnName: status
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: DOES_NOT_CONTAIN
+                  CategoryValues:
+                  - resolved
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 95d28580-bc1b-4bae-9cd7-f6a9c207df49
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - 32a4583f-05d8-49c6-a87a-ba32cbee08a0
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: ef7474ff-074a-4fe7-87dd-07b8eb39698c
+          Filters:
+          - CategoryFilter:
+              FilterId: 5f6437d5-0e42-451a-8797-b6458eb7bac1
+              Column:
+                DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                ColumnName: status
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: DOES_NOT_CONTAIN
+                  CategoryValues:
+                  - resolved
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 95d28580-bc1b-4bae-9cd7-f6a9c207df49
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - 8be3380a-5745-4b4a-86eb-8eca30fd4671
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        AnalysisDefaults:
+          DefaultNewSheetConfiguration:
+            InteractiveLayoutConfiguration:
+              Grid:
+                CanvasSizeOptions:
+                  ScreenCanvasSizeOptions:
+                    ResizeOption: FIXED
+                    OptimizedViewPortWidth: 1600px
+            SheetContentType: INTERACTIVE
+      Permissions:
+      - Principal: !Sub "${QuickSightUser}"
+        Actions:
+          - quicksight:RestoreAnalysis
+          - quicksight:UpdateAnalysisPermissions
+          - quicksight:DeleteAnalysis
+          - quicksight:QueryAnalysis
+          - quicksight:DescribeAnalysisPermissions
+          - quicksight:DescribeAnalysis
+          - quicksight:UpdateAnalysis

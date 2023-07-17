@@ -1,0 +1,104 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Parameters:
+  CimaDDBTableArn:
+    Type: String
+    Description: DDB arn
+  CimaBucket:
+    Type: String
+    Description: CimaBucket Name
+
+Resources:
+  CimaLambdaForDDBConnector:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "CimaLambdaForDDBConnector-${AWS::AccountId}"
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole 
+      Policies:
+        - PolicyName: cloudwatch-logs-access
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+        - PolicyName: CimaDDB-access
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:*
+                Resource: !Ref CimaDDBTableArn
+        - PolicyName: CimaDDB-Connector
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:ListTables
+                  - dynamodb:Scan
+                  - dynamodb:DescribeTable
+                  - s3:ListAllMyBuckets
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - s3:*
+                Resource: 
+                 - !Sub arn:aws:s3:::${CimaBucket}
+                 - !Sub arn:aws:s3:::${CimaBucket}/*
+  AthenaDynamoDBConnector:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location:
+        ApplicationId: arn:aws:serverlessrepo:us-east-1:292517598671:applications/AthenaDynamoDBConnector
+        SemanticVersion: 2023.18.1
+      Parameters: 
+        # This is the name of the Athena catalog that will be created. This name must satisfy the pattern ^[a-z0-9-_]{1,64}$
+        AthenaCatalogName: !Sub cimaddb-${AWS::AccountId}
+        # WARNING: If set to 'true' encryption for spilled data is disabled.
+        # DisableSpillEncryption: 'false' # Uncomment to override default value
+        # (Optional) By default any data that is spilled to S3 is encrypted using AES-GCM and a randomly generated key. Setting a KMS Key ID allows your Lambda function to use KMS for key generation for a stronger source of encryption keys.
+        # KMSKeyId: '' # Uncomment to override default value
+        # Lambda memory in MB (min 128 - 3008 max).
+        # LambdaMemory: '3008' # Uncomment to override default value
+        # (Optional) A custom role to be used by the Connector lambda
+        LambdaRole: !GetAtt CimaLambdaForDDBConnector.Arn 
+        # Maximum Lambda invocation runtime in seconds. (min 1 - 900 max)
+        # LambdaTimeout: '900' # Uncomment to override default value
+        # (Optional) An IAM policy ARN to use as the PermissionsBoundary for the created Lambda function's execution role
+        # PermissionsBoundaryARN: '' # Uncomment to override default value
+        # The name of the bucket where this function can spill data.
+        SpillBucket: !Ref CimaBucket
+        # The prefix within SpillBucket where this function can spill data.
+        # SpillPrefix: 'athena-spill' # Uncomment to override default value  
+
+  CimaDataCatalog:
+    Type: AWS::Athena::DataCatalog
+    Properties:
+      Name: CimaDataCatalog
+      Type: LAMBDA
+      Description: Custom lambda Catalog 
+      Parameters:
+        metadata-function: !Sub  "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cimaddb-${AWS::AccountId}"
+        record-function: !Sub  "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cimaddb-${AWS::AccountId}"
+  
+Outputs:
+  CimaDataCatalog:
+    Value: !Ref CimaDataCatalog
+    Export:
+      Name: CimaDataCatalog
+  CimaDDBConnectorARN:
+    Value: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cimaddb-${AWS::AccountId}"
+    Export:
+      Name: CimaDDBConnectorARN
+  

@@ -57,9 +57,9 @@ python3 CentralAccountSetup.py
 
 You will be prompted to enter your AWS account ID, the Amazon S3 bucket name for storing AWS CloudFormation template files, the IAM role used by Amazon QuickSight, and the Amazon QuickSight user who will author the Amazon QuickSight dashboard. 
 
-4.	Monitor the AWS CloudFormation deployment progress by navigating to the AWS CloudFormation console. Look for the stack named “CimaDashboardStack<account-ID>”.
+4.	Monitor the AWS CloudFormation deployment progress by navigating to the AWS CloudFormation console. Look for the stack named *CimaDashboardStack<account-ID>*.
 5.	If you see a “CREATE_COMPLETE” message for your CloudFormation stack, navigate to the Amazon QuickSight service under the supplied username in step 3. You should see a populated Amazon QuickSight dashboard similar to the one below.
-6.	Navigate to the nested stack named “CimaDashboardStack<account-ID>-CimaCentralAccSetup-<9DigitsHash>”. Copy and save the output value for *CimaBusArn*. You will need this value in link account setup.
+6.	Navigate to the nested stack named *CimaDashboardStack<account-ID>-CimaCentralAccSetup-<9-digits-hash>*. Copy and save the output value for *CimaBusArn*. You will need this value in link account setup.
 
 **Link Account Setup**
 Once the central account setup is complete, you can proceed with the link account setup. There are two options for deployment in the link account: 

@@ -1,68 +1,89 @@
 # What is this solution indented for?
 
-AWS-CIMA (Case Insights for Multi-Accounts) presents a comprehensive visualization dashboard that simplifies the task of overseeing and tracking cases acorss multiple accounts within an organization. This dashboard streamlines the process of monitoring cases, making it effortless and efficient. Customers can conveniently manage and track the status and progress of all cases without the hassle of logging in separately to each individual AWS account.
+AWS-CIMA (Case Insights for Multi-Accounts) presents a visualization dashboard that simplifies the task of overseeing and tracking cases across multiple accounts within an organization. This dashboard streamlines the process of monitoring cases, so customers can conveniently manage and track the status and progress of all cases without logging in to each individual AWS account.
 
 **Key Features:**
 
-* Centralized Visualization Dashboard : CIMA offers a centralized platform that presents a visual representation of case data from various accounts within an organization.  This dashboard serves as a single point of access, enabling users to view and analyze case information in a centralized and intuitive manner.
+* Centralized Visualization Dashboard: CIMA offers a centralized dashboard that aggregates case data from various accounts within an AWS Organization. This enables users to view and analyze case information from a single point of access. 
 
-* Streamlined Case Monitoring : With CIMA, the process of monitoring cases is optimized and made more efficient. The dashboard provides a streamlined interface where users can easily track the status, progress and key metrics of all cases across multiple accounts, eliminating the need for manual tracking or logging into each account separately. 
+* Streamlined Case Monitoring: CIMA provides a streamlined interface where users can track the status, progress, and key metrics of all cases across multiple accounts. This removes the need for manual tracking and logging into each account separately.
 
-* Real-time Updates: The visualization dashboard in CIMA ensures that users have access to real-time updates on cases status and progress. This timeline information empowers organizations to make informed decisions and take necessary actions promptly, leading improved efficiency and customer satisfaction.
+* Real-time Updates: CIMA utilizes an event-driven architecture to capture any support case updates, so that users can have timely access to case status and progress across accounts. This information empowers organizations to make informed decisions and take actions, which improves business process efficiency. 
 
 <div align="center">
   <img src="img/sampleDashboard.jpg" alt="Sample Dashboard">
 </div>
 
-# Solution architecture
-The following architecture shows a multi-account structure.  These accounts can be standalone or associated with different or the same AWS organizations. To simplify, we will refer to the central account as the account which will receive events from all link account and the link account as the account enhancing and sending the events to central account.  
+# Solution Architecture
+The following diagram illustrates a multi-account structure. The central account refers to the account which will display the unified Amazon QuickSight dashboard, and will receive events routed from the current account as well as all other accounts within your AWS Organizations. The link accounts refer to any accounts other than the central account, routing enriched events to the central account. 
  ![ALT](img/cima-arch.jpg)
 
-**Central Account Overview** Central Account architecture consist of EventBridge Custom bus, EventBridge rule, Lambda function and Amazon DynamoDB. The presentation layer included, Amazon Quicksight  and Amazon Athena. 
-1.	The EventBridge custom bus receives events from linked accounts. When an event match pattern `({"source": ["aws.Cima"]})`, an EventBridge rule triggers a Lambda function, which put the event in DynamoDB table.
-2.	Amazon QuickSight connects to DynamoDB table though Amazon Athena federated query and present the data in one single dashboard. 
+**Central Account Overview** The central account architecture consists of an AWS EventBridge custom bus, an AWS EventBridge rule, an AWS Lambda function and an Amazon DynamoDB table. The presentation layer includes an Amazon Quicksight dashboard and Amazon Athena as the query engine. 
+1.	The AWS EventBridge custom bus receives events from the link accounts. When an event match the pattern `({"source": ["aws.Cima"]})`, an AWS EventBridge rule triggers an AW Lambda function, which places the event in the Amazon DynamoDB table.
+2.	Amazon QuickSight connects to the Amazon DynamoDB table though the Amazon Athena federated query and presents the data in a single dashboard. 
 
-**Link Account Overview** Link Account architecture consist of AWS Lambda function, two Eventbridge rules, and AWS Support Service.
-1.	When case is opened, updated, or closed, AWS Support service emits an event and puts the event in the default event bus associated with the account. 
-2.	First EventBridge rule on the default bus triggers a Lambda function when the event matched with  pattern `({"source": ["aws.support"]})` and pass case-id to the lambda function.
-3.	The Lambda function invokes the AWS Support API, enhances the event by appending a user-friendly message, and subsequently put the enriched event to the default bus with source as "Cima."
-4.	The second EventBridge rule on the default bus publishes an event to the default bus of the central account when it matches  pattren `({"source": ["aws.Cima"]})`
+**Link Account Overview** The link account architecture consists of an AWS Lambda function, two AWS EventBridge rules, and AWS Support.
+1.	When a case is opened, updated, or closed, AWS Support emits an event and puts the event in the default event bus associated with the account. 
+2.	The first AWS EventBridge rule on the default bus triggers an AWS Lambda function when the event matches the pattern `({"source": ["aws.support"]})` and passes the case-id to the AWS Lambda function.
+3.	The AWS Lambda function invokes the AWS Support API, enhances the event by appending a user-friendly message, and subsequently puts the enriched event on the default bus with the source labeled as "Cima".
+4.	The second AWS EventBridge rule on the default bus publishes an event to the AWS EventBridge custom bus in the central account when it matches the pattren `({"source": ["aws.Cima"]})`
 
 # Prerequisite
-To setup this solution, You need basic familiarity with the AWS Management Console, an AWS account:
-1.	Before you use the AWS support APIs, you need to have a Business Support, Enterprise On-Ramp or Enterprise Support plan from AWS Support. 
-2.	Sign up for Amazon QuickSight if you have never used it in this account. To use the forecast capability in QuickSight, sign up for the Enterprise Edition. 
-3.	Verify Amazon QuickSight service has access to Amazon Athena. To enable, go to security and permissions under manage QuickSight. 
-4.	This solution uses SPICE to hold data. Go to SPICE capacity under manage QuickSight and verify you have required space.
+To setup this solution, you need to have an AWS account and be familar with the AWS Management Console:
+1.	To use the AWS Support API in the provided AWS CloudFormation template, you need to have AWS Business Support, AWS Enterprise On-Ramp or AWS Enterprise Support plan. 
+2.	You will need to sign up for Amazon QuickSight Enterprise Edition to use the forecast capability in the provided template. 
+3.	Your Amazon QuickSight service should have access to Amazon Athena. To enable this access, go to security and permissions under manage QuickSight drop down menu. 
+4.	The provided template uses Amazon QuickSight SPICE to hold data. Ensure you have sufficient SPICE capacity to hold your support case data. You can view the available SPICE capacity under manage QuickSight drop down menu.
 
 # Deploying the solution
-In this section, we will go through the steps to set up components for both the central and member accounts.
+In this section, we will go through the steps to set up components for both the central and link accounts.
 
 **Central Account Setup**
-This blog post provides a sample code that demonstrates how to set up all the essential components needed to receive case data from various accounts. 
-1.	To start, login to your AWS account and launch AWS CloudShell.
-2.	 Clone Case-Insights-for-Multi-accounts repo. 
+This repository provides a sample code that demonstrates how to set up all the essential components to receive case data from link accounts. 
+1.	Login to your AWS account and launch AWS CloudShell.
+2.	Clone the CIMA repository from GitHub using the command:
 
-`git clone https://github.com/aws-samples/case-insights-for-multi-accounts.git`
+```bash
+git clone https://github.com/aws-samples/Case-Insights-for-Multi-accounts.git
+```
 
-3.	Go to Clone Case-Insights-for-Multi-accounts directory and run setup script.
+3.	Navigate to the case-insights-for-multi-accounts directory, and run the setup script.
 
-`cd case-insights-for-multi-accounts`
+```bash
+cd case-insights-for-multi-accounts
+python3 CentralAccountSetup.py
+```
 
-`python3 CentralAccountSetup.py`
+You will be prompted to enter your AWS account ID, the Amazon S3 bucket name for storing AWS CloudFormation template files, the IAM role used by Amazon QuickSight, and the Amazon QuickSight user who will author the Amazon QuickSight dashboard. 
+
+4.	Monitor the AWS CloudFormation deployment progress by navigating to the AWS CloudFormation console. Look for the stack named *CimaDashboardStack-YourAccountID*.
+5.	If you see a “CREATE_COMPLETE” message for your CloudFormation stack, navigate to the Amazon QuickSight service under the supplied username in step 3. You should see a populated Amazon QuickSight dashboard similar to the one below.
+6.	Navigate to the nested stack named *CimaDashboardStack-YourAccountID-CimaCentralAccSetup-9DigitsHash*. Copy and save the output value for *CimaBusArn*. You will need this value in link account setup.
 
 **Link Account Setup**
-Once central account setup is complete, proceed with link account setup. You have two deployment options as follows.
+Once the central account setup is complete, you can proceed with the link account setup. There are two options for deployment in the link account: 
 
 **Option 1:** Using setup script.
-1.	Setup AWS credentials for desired account. If you are using AWS CloudShell, Clone repo again to the link account.
-2.	Go to Case-Insights-for-Multi-accounts directory and run following setup script.
+1.	Launch AWS CloudShell in us-east-1 and clone the CIMA repository from GitHub using the command:
 
-`python3 LinkAccountSetup.py`
+```bash
+git clone https://github.com/aws-samples/case-insights-for-multi-accounts.git
+```
+
+2.	Navigate to the case-insights-for-multi-accounts directory, and run the setup script.
+
+```bash
+cd case-insights-for-multi-accounts`
+python3 LinkAccountSetup.py
+```
+
+You will be prompted to enter your CimaBusArn, copied from step 6 of the central account setup. 
 
 **Option 2:** Bulk deployment via StackSet:
-1.	Go to CloudFormation Console and create a stackset with new resources from the template file Cima-LinkAccSetup.yaml  in Case-Insights-for-Multi-accounts/src/CimaTemplates directory.
-2.	Input the central account EventBridge custom bus ARN. 
-3.	Select deployment targets (Deploy to OU or deploy to organization).
-4.	Select us-east-1 regions to deploy.
-5.	Submit.
+1.	Navigate to the AWS CloudFormation console. 
+2.	Download the [link account template](https://github.com/aws-samples/case-insights-for-multi-accounts/blob/main/README.md).
+3.	Create an AWS CloudFormation StackSet with the downloaded template.
+4.	Provide the *CimaBusArn*, copied from step 6 of the central account setup.
+5.	Select deployment targets. You have the option to deploy to AWS Organization Unit (OU) or deploy to your entire AWS Organization.
+6.	Select us-east-1 as the region for deployment.
+7.	Submit.

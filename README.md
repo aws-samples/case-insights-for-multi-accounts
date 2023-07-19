@@ -44,12 +44,16 @@ This repository provides a sample code that demonstrates how to set up all the e
 1.	Login to your AWS account and launch AWS CloudShell.
 2.	Clone the CIMA repository from GitHub using the command:
 
-`git clone https://github.com/aws-samples/Case-Insights-for-Multi-accounts.git`
+```bash
+git clone https://github.com/aws-samples/Case-Insights-for-Multi-accounts.git
+```
 
 3.	Navigate to the case-insights-for-multi-accounts directory, and run the setup script.
 
-`cd case-insights-for-multi-accounts`
-`python3 CentralAccountSetup.py`
+```bash
+cd case-insights-for-multi-accounts
+python3 CentralAccountSetup.py
+```
 
 You will be prompted to enter your AWS account ID, the Amazon S3 bucket name for storing AWS CloudFormation template files, the IAM role used by Amazon QuickSight, and the Amazon QuickSight user who will author the Amazon QuickSight dashboard. 
 
@@ -63,12 +67,16 @@ Once the central account setup is complete, you can proceed with the link accoun
 **Option 1:** Using setup script.
 1.	Launch AWS CloudShell in us-east-1 and clone the CIMA repository from GitHub using the command:
 
-`git clone https://github.com/aws-samples/case-insights-for-multi-accounts.git`
+```bash
+git clone https://github.com/aws-samples/case-insights-for-multi-accounts.git
+```
 
 2.	Navigate to the case-insights-for-multi-accounts directory, and run the setup script.
 
-`cd case-insights-for-multi-accounts`
-`python3 LinkAccountSetup.py`
+```bash
+cd case-insights-for-multi-accounts`
+python3 LinkAccountSetup.py
+```
 
 You will be prompted to enter your CimaBusArn, copied from step 6 of the central account setup. 
 

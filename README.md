@@ -18,16 +18,15 @@ AWS-CIMA (Case Insights for Multi-Accounts) presents a visualization dashboard t
 The following diagram illustrates a multi-account structure. The central account refers to the account which will display the unified Amazon QuickSight dashboard, and will receive events routed from the current account as well as all other accounts within your AWS Organizations. The link accounts refer to any accounts other than the central account, routing enriched events to the central account. 
  ![ALT](img/cima-arch.jpg)
 
+**Central Account Overview** The central account architecture consists of an AWS EventBridge custom bus, an AWS EventBridge rule, an AWS Lambda function and an Amazon DynamoDB table. The presentation layer includes an Amazon Quicksight dashboard and Amazon Athena as the query engine. 
+1.	The AWS EventBridge custom bus receives events from the link accounts. When an event match the pattern `({"source": ["aws.Cima"]})`, an AWS EventBridge rule triggers an AW Lambda function, which places the event in the Amazon DynamoDB table.
+2.	Amazon QuickSight connects to the Amazon DynamoDB table though the Amazon Athena federated query and presents the data in a single dashboard. 
+
 **Link Account Overview** The link account architecture consists of an AWS Lambda function, two AWS EventBridge rules, and AWS Support.
 1.	When a case is opened, updated, or closed, AWS Support emits an event and puts the event in the default event bus associated with the account. 
 2.	The first AWS EventBridge rule on the default bus triggers an AWS Lambda function when the event matches the pattern `({"source": ["aws.support"]})` and passes the case-id to the AWS Lambda function.
 3.	The AWS Lambda function invokes the AWS Support API, enhances the event by appending a user-friendly message, and subsequently puts the enriched event on the default bus with the source labeled as "Cima".
 4.	The second AWS EventBridge rule on the default bus publishes an event to the AWS EventBridge custom bus in the central account when it matches the pattren `({"source": ["aws.Cima"]})`
-
-**Central Account Overview** The central account architecture consists of an AWS EventBridge custom bus, an AWS EventBridge rule, an AWS Lambda function and an Amazon DynamoDB table. The presentation layer includes an Amazon Quicksight dashboard and Amazon Athena as the query engine. 
-1.	The AWS EventBridge custom bus receives events from the link accounts. When an event match the pattern `({"source": ["aws.Cima"]})`, an AWS EventBridge rule triggers an AW Lambda function, which places the event in the Amazon DynamoDB table.
-2.	Amazon QuickSight connects to the Amazon DynamoDB table though the Amazon Athena federated query and presents the data in a single dashboard. 
-
 
 # Prerequisite
 To setup this solution, you need to have an AWS account and be familar with the AWS Management Console:

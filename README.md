@@ -87,3 +87,6 @@ You will be prompted to enter your CimaBusArn, copied from step 6 of the central
 5.	Select deployment targets. You have the option to deploy to AWS Organization Unit (OU) or deploy to your entire AWS Organization.
 6.	Select us-east-1 as the region for deployment.
 7.	Submit.
+
+
+[![GitHub Clones](https://img.shields.io/badge/dynamic/json?color=success&label=Clone&query=count&url=https://gist.githubusercontent.com/bajwkanw/40d4153b23c3261757ed99b435f225b0/raw/clone.json&logo=github)](https://github.com/aws-samples/case-insights-for-multi-accounts)

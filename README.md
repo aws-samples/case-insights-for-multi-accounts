@@ -1,6 +1,6 @@
 # What is this solution indented for?
 
-AWS-CIMA (Case Insights for Multi-Accounts) presents a visualization dashboard that simplifies the task of overseeing and tracking cases across multiple accounts within an organization. This dashboard streamlines the process of monitoring cases, so customers can conveniently manage and track the status and progress of all cases without logging in to each individual AWS account.
+AWS-CIMA (Case Insights for Multi-Accounts) presents a visualization dashboard that simplifies the task of overseeing and tracking cases across multiple accounts and multiple aws organization. This dashboard streamlines the process of monitoring cases, so customers can conveniently manage and track the status and progress of all cases without logging in to each individual AWS account.
 
 **Key Features:**
 

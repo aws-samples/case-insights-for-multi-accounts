@@ -10,10 +10,8 @@ AWS-CIMA (Case Insights for Multi-Accounts) presents a visualization dashboard t
 
 * Real-time Updates: CIMA utilizes an event-driven architecture to capture any support case updates, so that users can have timely access to case status and progress across accounts. This information empowers organizations to make informed decisions and take actions, which improves business process efficiency. 
 
-<div align="center">
-  <img src="img/sampleDashboard.jpg" alt="Sample Dashboard">
-</div>
-
+ ![ALT](img/sampleDashboard.jpg)
+ 
 # Solution Architecture
 The following diagram illustrates a multi-account structure. The central account refers to the account which will display the unified Amazon QuickSight dashboard, and will receive events routed from the current account as well as all other accounts within your AWS Organizations. The link accounts refer to any accounts other than the central account, routing enriched events to the central account. 
  ![ALT](img/cima-arch.jpg)

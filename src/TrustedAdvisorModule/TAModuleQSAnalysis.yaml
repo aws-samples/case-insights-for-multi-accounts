@@ -1,0 +1,3382 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: TAModule QS Analysis Setup
+
+Parameters:
+  QSDataSetTACheckEvents:
+    Type: String
+    Description: The AWS TACheck Event QSDataSetArn for Analysis.
+  QuickSightAnalysisAuthor:
+    Type: String
+    Description: The QuickSight User that is allowed configure and manage the QS dashboard.
+
+Resources:
+  TACheckEventsAnalysis:
+    Type: AWS::QuickSight::Analysis
+    Properties:
+      AwsAccountId: !Sub "${AWS::AccountId}"
+      Name: !Sub "TACheckEvents-Analysis-${AWS::AccountId}"
+      AnalysisId: !Sub "TACheckEvents-Analysis-${AWS::AccountId}"
+      Definition: 
+        DataSetIdentifierDeclarations:
+        - Identifier: !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+          DataSetArn: !Ref QSDataSetTACheckEvents 
+        Sheets:
+        - SheetId: 821d19ef-ecbe-4b87-a3cf-3dbfee47229f
+          Name: Service Limits
+          FilterControls:
+          - Dropdown:
+              FilterControlId: 5d5a2dbb-ca75-40d6-9c0e-6a09b02b9bbe
+              Title: accountName equals
+              SourceFilterId: 6d837956-750f-490d-8c2d-e94b266af866
+              DisplayOptions:
+                SelectAllOptions:
+                  Visibility: VISIBLE
+                TitleOptions:
+                  Visibility: VISIBLE
+                  FontConfiguration:
+                    FontSize:
+                      Relative: MEDIUM
+              Type: MULTI_SELECT
+          Visuals:
+          - PieChartVisual:
+              VisualId: 9dbe7c93-a4ed-4eaa-8775-91fdd0abb2cd
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: "<visual-title>OverAll Service Limit Status</visual-title>"
+              Subtitle:
+                Visibility: HIDDEN
+              ChartConfiguration:
+                FieldWells:
+                  PieChartAggregatedFieldWells:
+                    Category:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.status.0.1700341201406
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: status
+                    Values: []
+                SortConfiguration:
+                  CategoryItemsLimit:
+                    OtherCategories: INCLUDE
+                  SmallMultiplesLimitConfiguration:
+                    OtherCategories: INCLUDE
+                DonutOptions:
+                  ArcOptions:
+                    ArcThickness: WHOLE
+                Legend:
+                  Visibility: VISIBLE
+                  Title:
+                    Visibility: VISIBLE
+                  Position: BOTTOM
+                DataLabels:
+                  Visibility: VISIBLE
+                  CategoryLabelVisibility: VISIBLE
+                  MeasureLabelVisibility: HIDDEN
+                  Position: OUTSIDE
+                  LabelFontConfiguration:
+                    FontSize:
+                      Relative: MEDIUM
+                  Overlap: DISABLE_OVERLAP
+                Tooltip:
+                  TooltipVisibility: VISIBLE
+                  SelectedTooltipType: DETAILED
+                  FieldBasedTooltip:
+                    AggregationVisibility: HIDDEN
+                    TooltipTitleType: PRIMARY_VALUE
+                    TooltipFields:
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.status.0.1700341201406
+                        Visibility: VISIBLE
+                VisualPalette:
+                  ColorMap:
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: Green
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: Red
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: Yellow
+                    Color: "#FFB500"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: ERROR
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: WARN
+                    Color: "#F7E65A"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: OK
+                    Color: "#33AEB1"
+              Actions:
+              - CustomActionId: 82974d6c-8ce8-48c0-a2ac-71792c7ba38f
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              ColumnHierarchies: []
+          - BarChartVisual:
+              VisualId: efb8d721-0b2c-4702-b412-344670863611
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: "<visual-title>Limit Status By Accounts</visual-title>"
+              Subtitle:
+                Visibility: VISIBLE
+              ChartConfiguration:
+                FieldWells:
+                  BarChartAggregatedFieldWells:
+                    Category:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.accountName.0.1700340632206
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: accountName
+                    Values: []
+                    Colors:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.status.1.1700340634096
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: status
+                SortConfiguration:
+                  CategorySort:
+                  - FieldSort:
+                      FieldId: TACheckQSLT.accountName.0.1700340632206
+                      Direction: DESC
+                  CategoryItemsLimit:
+                    OtherCategories: INCLUDE
+                  ColorItemsLimit:
+                    OtherCategories: INCLUDE
+                  SmallMultiplesLimitConfiguration:
+                    OtherCategories: INCLUDE
+                Orientation: HORIZONTAL
+                BarsArrangement: STACKED
+                VisualPalette:
+                  ColorMap:
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: Green
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: Red
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: Yellow
+                    Color: "#F6AA54"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: ERROR
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: OK
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: WARN
+                    Color: "#F7E65A"
+                Legend:
+                  Visibility: VISIBLE
+                  Position: BOTTOM
+                DataLabels:
+                  Visibility: HIDDEN
+                  Overlap: DISABLE_OVERLAP
+                Tooltip:
+                  TooltipVisibility: VISIBLE
+                  SelectedTooltipType: DETAILED
+                  FieldBasedTooltip:
+                    AggregationVisibility: HIDDEN
+                    TooltipTitleType: PRIMARY_VALUE
+                    TooltipFields:
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.accountName.0.1700340632206
+                        Visibility: VISIBLE
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.status.1.1700340634096
+                        Visibility: VISIBLE
+              Actions:
+              - CustomActionId: b4661806-f04a-406e-b4cf-ffe10c33cd5f
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              ColumnHierarchies: []
+          - BarChartVisual:
+              VisualId: daa04541-45f0-487e-99eb-19ca599f8c6d
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: "<visual-title>OverAll Limit Usage by Service</visual-title>"
+              Subtitle:
+                Visibility: VISIBLE
+              ChartConfiguration:
+                FieldWells:
+                  BarChartAggregatedFieldWells:
+                    Category:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.limitname.2.1700357572846
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: limitname
+                    Values:
+                    - NumericalMeasureField:
+                        FieldId: dc8bd51c-c0c7-4ff3-b557-73f9553724ff.2.1700357163963
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: RemainingLimit
+                        AggregationFunction:
+                          SimpleNumericalAggregation: SUM
+                    - NumericalMeasureField:
+                        FieldId: TACheckQSLT.currentusage.2.1700356276870
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: currentusage
+                        AggregationFunction:
+                          SimpleNumericalAggregation: SUM
+                    Colors: []
+                SortConfiguration:
+                  CategorySort:
+                  - FieldSort:
+                      FieldId: TACheckQSLT.currentusage.2.1700356276870
+                      Direction: DESC
+                  CategoryItemsLimit:
+                    OtherCategories: INCLUDE
+                  ColorItemsLimit:
+                    OtherCategories: INCLUDE
+                  SmallMultiplesLimitConfiguration:
+                    OtherCategories: INCLUDE
+                Orientation: HORIZONTAL
+                BarsArrangement: STACKED_PERCENT
+                VisualPalette:
+                  ColorMap:
+                  - Element:
+                      FieldId: dc8bd51c-c0c7-4ff3-b557-73f9553724ff.2.1700357163963
+                      FieldValue: RemainingLimit
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.currentusage.2.1700356276870
+                      FieldValue: currentusage
+                    Color: "#863CFF"
+                CategoryAxis:
+                  ScrollbarOptions:
+                    VisibleRange:
+                      PercentRange:
+                        From: 74.35897435897434
+                        To: 100
+                DataLabels:
+                  Visibility: HIDDEN
+                  Overlap: DISABLE_OVERLAP
+                Tooltip:
+                  TooltipVisibility: VISIBLE
+                  SelectedTooltipType: DETAILED
+                  FieldBasedTooltip:
+                    AggregationVisibility: HIDDEN
+                    TooltipTitleType: PRIMARY_VALUE
+                    TooltipFields:
+                    - FieldTooltipItem:
+                        FieldId: dc8bd51c-c0c7-4ff3-b557-73f9553724ff.2.1700357163963
+                        Visibility: VISIBLE
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.currentusage.2.1700356276870
+                        Visibility: VISIBLE
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.limitname.2.1700357572846
+                        Visibility: VISIBLE
+              Actions:
+              - CustomActionId: 5af50744-e411-4ebc-b3d8-0c9245e00012
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              ColumnHierarchies: []
+          - TableVisual:
+              VisualId: 34bfd617-23b0-4ecb-b645-9c6d92d41cfe
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: "<visual-title>Service Limit Details</visual-title>"
+              Subtitle:
+                Visibility: VISIBLE
+              ChartConfiguration:
+                FieldWells:
+                  TableAggregatedFieldWells:
+                    GroupBy:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.accountName.1.1700336804583
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: accountName
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.Region.7.1700337012105
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: Region
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.accountTag.6.1700336883621
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: accountTag
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.service.8.1700337107262
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: service
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.checkname.2.1700336807828
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: checkname
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.limitname.3.1700336819788
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: limitname
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.status.7.1700336939517
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: status
+                    - NumericalDimensionField:
+                        FieldId: TACheckQSLT.currentusage.5.1700336832072
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: currentusage
+                    - DateDimensionField:
+                        FieldId: TACheckQSLT.ingestionTime.9.1700337154231
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: ingestionTime
+                    Values:
+                    - NumericalMeasureField:
+                        FieldId: dc8bd51c-c0c7-4ff3-b557-73f9553724ff.10.1700357190762
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: RemainingLimit
+                        AggregationFunction:
+                          SimpleNumericalAggregation: SUM
+                SortConfiguration:
+                  PaginationConfiguration:
+                    PageSize: 10000
+                    PageNumber: 1
+                TableOptions:
+                  HeaderStyle:
+                    FontConfiguration:
+                      FontSize: {}
+                      FontColor: "#000000"
+                    HorizontalTextAlignment: AUTO
+                    VerticalTextAlignment: MIDDLE
+                    BackgroundColor: "#33AEB1"
+                  CellStyle:
+                    Height: 25
+                FieldOptions:
+                  SelectedFieldOptions: []
+                  Order:
+                  - TACheckQSLT.accountName.1.1700336804583
+                  - TACheckQSLT.Region.7.1700337012105
+                  - TACheckQSLT.accountTag.6.1700336883621
+                  - TACheckQSLT.service.8.1700337107262
+                  - TACheckQSLT.checkname.2.1700336807828
+                  - TACheckQSLT.limitname.3.1700336819788
+                  - TACheckQSLT.status.7.1700336939517
+                  - TACheckQSLT.currentusage.5.1700336832072
+                  - TACheckQSLT.ingestionTime.9.1700337154231
+                  - dc8bd51c-c0c7-4ff3-b557-73f9553724ff.10.1700357190762
+              ConditionalFormatting:
+                ConditionalFormattingOptions:
+                - Cell:
+                    FieldId: TACheckQSLT.status.7.1700336939517
+                    TextFormat:
+                      BackgroundColor:
+                        Solid:
+                          Expression: locate({status}, "ERROR") > 0
+                          Color: "#DE3B00"
+                - Cell:
+                    FieldId: TACheckQSLT.status.7.1700336939517
+                    TextFormat:
+                      BackgroundColor:
+                        Solid:
+                          Expression: '{status} = "OK"'
+                          Color: "#33AEB1"
+                - Cell:
+                    FieldId: TACheckQSLT.status.7.1700336939517
+                    TextFormat:
+                      BackgroundColor:
+                        Solid:
+                          Expression: '{status} = "WARN"'
+                          Color: "#F7E65A"
+              Actions:
+              - CustomActionId: 51abc96f-c5f5-43ab-91fb-624ee3d8c247
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+          Layouts:
+          - Configuration:
+              GridLayout:
+                Elements:
+                - ElementId: efb8d721-0b2c-4702-b412-344670863611
+                  ElementType: VISUAL
+                  ColumnIndex: 0
+                  ColumnSpan: 11
+                  RowIndex: 0
+                  RowSpan: 9
+                - ElementId: 9dbe7c93-a4ed-4eaa-8775-91fdd0abb2cd
+                  ElementType: VISUAL
+                  ColumnIndex: 11
+                  ColumnSpan: 11
+                  RowIndex: 0
+                  RowSpan: 9
+                - ElementId: daa04541-45f0-487e-99eb-19ca599f8c6d
+                  ElementType: VISUAL
+                  ColumnIndex: 22
+                  ColumnSpan: 14
+                  RowIndex: 0
+                  RowSpan: 9
+                - ElementId: 34bfd617-23b0-4ecb-b645-9c6d92d41cfe
+                  ElementType: VISUAL
+                  ColumnIndex: 0
+                  ColumnSpan: 36
+                  RowIndex: 9
+                  RowSpan: 12
+                CanvasSizeOptions:
+                  ScreenCanvasSizeOptions:
+                    ResizeOption: RESPONSIVE
+          SheetControlLayouts:
+          - Configuration:
+              GridLayout:
+                Elements:
+                - ElementId: 5d5a2dbb-ca75-40d6-9c0e-6a09b02b9bbe
+                  ElementType: FILTER_CONTROL
+                  ColumnSpan: 2
+                  RowSpan: 1
+          ContentType: INTERACTIVE
+        - SheetId: 4d1dd502-c729-4e02-9038-46b3f87a4491
+          Name: fault tolerance
+          FilterControls:
+          - Dropdown:
+              FilterControlId: 3a0ce751-c522-49fb-b68c-ff25f730ac59
+              Title: accountName equals
+              SourceFilterId: 4da2240e-a090-4a35-8a53-ad7361b2b5db
+              DisplayOptions:
+                SelectAllOptions:
+                  Visibility: VISIBLE
+                TitleOptions:
+                  Visibility: VISIBLE
+                  FontConfiguration:
+                    FontSize:
+                      Relative: MEDIUM
+              Type: MULTI_SELECT
+          Visuals:
+          - PieChartVisual:
+              VisualId: d91aed16-3927-4e58-a03b-6159d19100e5
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: "<visual-title>OverAll  Status</visual-title>"
+              Subtitle:
+                Visibility: HIDDEN
+              ChartConfiguration:
+                FieldWells:
+                  PieChartAggregatedFieldWells:
+                    Category:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.status.0.1700341201406
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: status
+                    Values: []
+                SortConfiguration:
+                  CategoryItemsLimit:
+                    OtherCategories: INCLUDE
+                  SmallMultiplesLimitConfiguration:
+                    OtherCategories: INCLUDE
+                DonutOptions:
+                  ArcOptions:
+                    ArcThickness: WHOLE
+                Legend:
+                  Visibility: VISIBLE
+                  Title:
+                    Visibility: VISIBLE
+                  Position: BOTTOM
+                DataLabels:
+                  Visibility: VISIBLE
+                  CategoryLabelVisibility: VISIBLE
+                  MeasureLabelVisibility: HIDDEN
+                  Position: OUTSIDE
+                  LabelFontConfiguration:
+                    FontSize:
+                      Relative: MEDIUM
+                  Overlap: DISABLE_OVERLAP
+                Tooltip:
+                  TooltipVisibility: VISIBLE
+                  SelectedTooltipType: DETAILED
+                  FieldBasedTooltip:
+                    AggregationVisibility: HIDDEN
+                    TooltipTitleType: PRIMARY_VALUE
+                    TooltipFields:
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.status.0.1700341201406
+                        Visibility: VISIBLE
+                VisualPalette:
+                  ColorMap:
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: Green
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: Red
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: Yellow
+                    Color: "#FFB500"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: WARN
+                    Color: "#F7E65A"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: OK
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: ERROR
+                    Color: "#DE3B00"
+              Actions:
+              - CustomActionId: e852135d-a499-4f41-8808-8082602266d2
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              ColumnHierarchies: []
+          - BarChartVisual:
+              VisualId: a7e73e98-9a54-4e0d-86cf-bb09978119dc
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: "<visual-title>Status by Account</visual-title>"
+              Subtitle:
+                Visibility: VISIBLE
+              ChartConfiguration:
+                FieldWells:
+                  BarChartAggregatedFieldWells:
+                    Category:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.accountName.0.1700340632206
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: accountName
+                    Values: []
+                    Colors:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.status.1.1700340634096
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: status
+                SortConfiguration:
+                  CategorySort:
+                  - FieldSort:
+                      FieldId: TACheckQSLT.accountName.0.1700340632206
+                      Direction: DESC
+                  CategoryItemsLimit:
+                    OtherCategories: INCLUDE
+                  ColorItemsLimit:
+                    OtherCategories: INCLUDE
+                  SmallMultiplesLimitConfiguration:
+                    OtherCategories: INCLUDE
+                Orientation: HORIZONTAL
+                BarsArrangement: STACKED
+                VisualPalette:
+                  ColorMap:
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: Green
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: Red
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: Yellow
+                    Color: "#FFB500"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: OK
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: ERROR
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: WARN
+                    Color: "#F7E65A"
+                Legend:
+                  Visibility: VISIBLE
+                  Position: BOTTOM
+                DataLabels:
+                  Visibility: HIDDEN
+                  Overlap: DISABLE_OVERLAP
+                Tooltip:
+                  TooltipVisibility: VISIBLE
+                  SelectedTooltipType: DETAILED
+                  FieldBasedTooltip:
+                    AggregationVisibility: HIDDEN
+                    TooltipTitleType: PRIMARY_VALUE
+                    TooltipFields:
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.accountName.0.1700340632206
+                        Visibility: VISIBLE
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.status.1.1700340634096
+                        Visibility: VISIBLE
+              Actions:
+              - CustomActionId: aea6e36f-a271-4fbc-8fd6-fa34ec94c0fc
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              ColumnHierarchies: []
+          - BarChartVisual:
+              VisualId: 9c2cd630-bfeb-4255-afb9-a968cc047c79
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: "<visual-title>Status by CheckName</visual-title>"
+              Subtitle:
+                Visibility: VISIBLE
+              ChartConfiguration:
+                FieldWells:
+                  BarChartAggregatedFieldWells:
+                    Category:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.checkname.0.1700524126861
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: checkname
+                    Values: []
+                    Colors:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.status.1.1700524134514
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: status
+                SortConfiguration:
+                  CategorySort:
+                  - FieldSort:
+                      FieldId: TACheckQSLT.checkname.0.1700524126861
+                      Direction: DESC
+                  CategoryItemsLimit:
+                    OtherCategories: INCLUDE
+                  ColorItemsLimit:
+                    OtherCategories: INCLUDE
+                  SmallMultiplesLimitConfiguration:
+                    OtherCategories: INCLUDE
+                Orientation: HORIZONTAL
+                BarsArrangement: STACKED_PERCENT
+                VisualPalette:
+                  ColorMap:
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: Green
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: Red
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: Yellow
+                    Color: "#FFB500"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: WARN
+                    Color: "#F7E65A"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: OK
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: ERROR
+                    Color: "#DE3B00"
+                CategoryAxis:
+                  ScrollbarOptions:
+                    VisibleRange:
+                      PercentRange:
+                        From: 41.176470588235304
+                        To: 100
+                DataLabels:
+                  Visibility: HIDDEN
+                  Overlap: DISABLE_OVERLAP
+                Tooltip:
+                  TooltipVisibility: VISIBLE
+                  SelectedTooltipType: DETAILED
+                  FieldBasedTooltip:
+                    AggregationVisibility: HIDDEN
+                    TooltipTitleType: PRIMARY_VALUE
+                    TooltipFields:
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.checkname.0.1700524126861
+                        Visibility: VISIBLE
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.status.1.1700524134514
+                        Visibility: VISIBLE
+              Actions:
+              - CustomActionId: c0b9f80b-0d53-4f1f-b936-c7315343987c
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              ColumnHierarchies: []
+          - TableVisual:
+              VisualId: 54fbef63-e8a4-4cb5-949d-e8d54267cd81
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: "<visual-title>Details</visual-title>"
+              Subtitle:
+                Visibility: VISIBLE
+              ChartConfiguration:
+                FieldWells:
+                  TableAggregatedFieldWells:
+                    GroupBy:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.accountName.1.1700336804583
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: accountName
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.Region.7.1700337012105
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: Region
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.accountTag.6.1700336883621
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: accountTag
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.checkname.2.1700336807828
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: checkname
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.status.7.1700336939517
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: status
+                    - DateDimensionField:
+                        FieldId: TACheckQSLT.ingestionTime.9.1700337154231
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: ingestionTime
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.Reason.7.1700449560394
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: Reason
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.resourceId.7.1700449629545
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: resourceId
+                    Values: []
+                SortConfiguration:
+                  PaginationConfiguration:
+                    PageSize: 10000
+                    PageNumber: 1
+                TableOptions:
+                  HeaderStyle:
+                    FontConfiguration:
+                      FontSize: {}
+                      FontColor: "#000000"
+                    HorizontalTextAlignment: AUTO
+                    VerticalTextAlignment: MIDDLE
+                    BackgroundColor: "#33AEB1"
+                  CellStyle:
+                    Height: 25
+                FieldOptions:
+                  SelectedFieldOptions: []
+                  Order:
+                  - TACheckQSLT.accountName.1.1700336804583
+                  - TACheckQSLT.Region.7.1700337012105
+                  - TACheckQSLT.accountTag.6.1700336883621
+                  - TACheckQSLT.checkname.2.1700336807828
+                  - TACheckQSLT.status.7.1700336939517
+                  - TACheckQSLT.ingestionTime.9.1700337154231
+                  - TACheckQSLT.Reason.7.1700449560394
+                  - TACheckQSLT.resourceId.7.1700449629545
+              ConditionalFormatting:
+                ConditionalFormattingOptions:
+                - Cell:
+                    FieldId: TACheckQSLT.status.7.1700336939517
+                    TextFormat:
+                      BackgroundColor:
+                        Solid:
+                          Expression: locate({status}, "ERROR") > 0
+                          Color: "#DE3B00"
+                - Cell:
+                    FieldId: TACheckQSLT.status.7.1700336939517
+                    TextFormat:
+                      BackgroundColor:
+                        Solid:
+                          Expression: '{status} = "OK"'
+                          Color: "#33AEB1"
+                - Cell:
+                    FieldId: TACheckQSLT.status.7.1700336939517
+                    TextFormat:
+                      BackgroundColor:
+                        Solid:
+                          Expression: '{status} = "WARN"'
+                          Color: "#F7E65A"
+              Actions:
+              - CustomActionId: 219935a6-a57c-49b9-b473-5fb3dee97178
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+          Layouts:
+          - Configuration:
+              GridLayout:
+                Elements:
+                - ElementId: a7e73e98-9a54-4e0d-86cf-bb09978119dc
+                  ElementType: VISUAL
+                  ColumnIndex: 0
+                  ColumnSpan: 11
+                  RowIndex: 0
+                  RowSpan: 9
+                - ElementId: d91aed16-3927-4e58-a03b-6159d19100e5
+                  ElementType: VISUAL
+                  ColumnIndex: 11
+                  ColumnSpan: 11
+                  RowIndex: 0
+                  RowSpan: 9
+                - ElementId: 9c2cd630-bfeb-4255-afb9-a968cc047c79
+                  ElementType: VISUAL
+                  ColumnIndex: 22
+                  ColumnSpan: 14
+                  RowIndex: 0
+                  RowSpan: 9
+                - ElementId: 54fbef63-e8a4-4cb5-949d-e8d54267cd81
+                  ElementType: VISUAL
+                  ColumnIndex: 0
+                  ColumnSpan: 36
+                  RowIndex: 9
+                  RowSpan: 12
+                CanvasSizeOptions:
+                  ScreenCanvasSizeOptions:
+                    ResizeOption: RESPONSIVE
+          SheetControlLayouts:
+          - Configuration:
+              GridLayout:
+                Elements:
+                - ElementId: 3a0ce751-c522-49fb-b68c-ff25f730ac59
+                  ElementType: FILTER_CONTROL
+                  ColumnSpan: 2
+                  RowSpan: 1
+          ContentType: INTERACTIVE
+        - SheetId: 3ba02ebe-66a6-4521-871d-63df93c1f535
+          Name: Security
+          FilterControls:
+          - Dropdown:
+              FilterControlId: a340863a-fdd4-43f8-80db-6c6df2cdcf03
+              Title: accountName equals
+              SourceFilterId: 815ccaec-b43c-43e7-af47-4fe69b7ea7ae
+              DisplayOptions:
+                SelectAllOptions:
+                  Visibility: VISIBLE
+                TitleOptions:
+                  Visibility: VISIBLE
+                  FontConfiguration:
+                    FontSize:
+                      Relative: MEDIUM
+              Type: MULTI_SELECT
+          Visuals:
+          - PieChartVisual:
+              VisualId: 7b5f41bc-ecbe-4af3-bbe0-f83138792fc7
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: "<visual-title>OverAll  Check Status</visual-title>"
+              Subtitle:
+                Visibility: HIDDEN
+              ChartConfiguration:
+                FieldWells:
+                  PieChartAggregatedFieldWells:
+                    Category:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.status.0.1700341201406
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: status
+                    Values: []
+                SortConfiguration:
+                  CategoryItemsLimit:
+                    OtherCategories: INCLUDE
+                  SmallMultiplesLimitConfiguration:
+                    OtherCategories: INCLUDE
+                DonutOptions:
+                  ArcOptions:
+                    ArcThickness: WHOLE
+                Legend:
+                  Visibility: VISIBLE
+                  Title:
+                    Visibility: VISIBLE
+                  Position: BOTTOM
+                DataLabels:
+                  Visibility: VISIBLE
+                  CategoryLabelVisibility: VISIBLE
+                  MeasureLabelVisibility: HIDDEN
+                  Position: OUTSIDE
+                  LabelFontConfiguration:
+                    FontSize:
+                      Relative: MEDIUM
+                  Overlap: DISABLE_OVERLAP
+                Tooltip:
+                  TooltipVisibility: VISIBLE
+                  SelectedTooltipType: DETAILED
+                  FieldBasedTooltip:
+                    AggregationVisibility: HIDDEN
+                    TooltipTitleType: PRIMARY_VALUE
+                    TooltipFields:
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.status.0.1700341201406
+                        Visibility: VISIBLE
+                VisualPalette:
+                  ColorMap:
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: Green
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: Red
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: Yellow
+                    Color: "#FFB500"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: ERROR
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: OK
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: WARN
+                    Color: "#F7E65A"
+              Actions:
+              - CustomActionId: 7dd96a53-bf6d-41b3-bbaf-c42ec8ca8800
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              ColumnHierarchies: []
+          - BarChartVisual:
+              VisualId: 64a2299b-0c14-4282-b0a3-ef5d50c0b845
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: "<visual-title>Status by Account</visual-title>"
+              Subtitle:
+                Visibility: VISIBLE
+              ChartConfiguration:
+                FieldWells:
+                  BarChartAggregatedFieldWells:
+                    Category:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.accountName.0.1700340632206
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: accountName
+                    Values: []
+                    Colors:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.status.1.1700340634096
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: status
+                SortConfiguration:
+                  CategorySort:
+                  - FieldSort:
+                      FieldId: TACheckQSLT.accountName.0.1700340632206
+                      Direction: DESC
+                  CategoryItemsLimit:
+                    OtherCategories: INCLUDE
+                  ColorItemsLimit:
+                    OtherCategories: INCLUDE
+                  SmallMultiplesLimitConfiguration:
+                    OtherCategories: INCLUDE
+                Orientation: HORIZONTAL
+                BarsArrangement: STACKED
+                VisualPalette:
+                  ColorMap:
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: Green
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: Red
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: Yellow
+                    Color: "#FFB500"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: ERROR
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: OK
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: WARN
+                    Color: "#F7E65A"
+                Legend:
+                  Visibility: VISIBLE
+                  Position: BOTTOM
+                DataLabels:
+                  Visibility: HIDDEN
+                  Overlap: DISABLE_OVERLAP
+                Tooltip:
+                  TooltipVisibility: VISIBLE
+                  SelectedTooltipType: DETAILED
+                  FieldBasedTooltip:
+                    AggregationVisibility: HIDDEN
+                    TooltipTitleType: PRIMARY_VALUE
+                    TooltipFields:
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.accountName.0.1700340632206
+                        Visibility: VISIBLE
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.status.1.1700340634096
+                        Visibility: VISIBLE
+              Actions:
+              - CustomActionId: 3963781d-237d-41c9-8590-5870b0bedfb0
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              ColumnHierarchies: []
+          - BarChartVisual:
+              VisualId: 99417de6-142a-4bea-a7b1-561867f77660
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: "<visual-title>Status by CheckName</visual-title>"
+              Subtitle:
+                Visibility: VISIBLE
+              ChartConfiguration:
+                FieldWells:
+                  BarChartAggregatedFieldWells:
+                    Category:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.checkname.0.1700524126861
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: checkname
+                    Values: []
+                    Colors:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.status.1.1700524134514
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: status
+                SortConfiguration:
+                  CategorySort:
+                  - FieldSort:
+                      FieldId: TACheckQSLT.checkname.0.1700524126861
+                      Direction: DESC
+                  CategoryItemsLimit:
+                    OtherCategories: INCLUDE
+                  ColorItemsLimit:
+                    OtherCategories: INCLUDE
+                  SmallMultiplesLimitConfiguration:
+                    OtherCategories: INCLUDE
+                Orientation: HORIZONTAL
+                BarsArrangement: STACKED_PERCENT
+                VisualPalette:
+                  ColorMap:
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: Green
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: Red
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: Yellow
+                    Color: "#FFB500"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: ERROR
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: OK
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: WARN
+                    Color: "#F7E65A"
+                CategoryAxis:
+                  ScrollbarOptions:
+                    VisibleRange:
+                      PercentRange:
+                        From: 41.176470588235304
+                        To: 100
+                DataLabels:
+                  Visibility: HIDDEN
+                  Overlap: DISABLE_OVERLAP
+                Tooltip:
+                  TooltipVisibility: VISIBLE
+                  SelectedTooltipType: DETAILED
+                  FieldBasedTooltip:
+                    AggregationVisibility: HIDDEN
+                    TooltipTitleType: PRIMARY_VALUE
+                    TooltipFields:
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.checkname.0.1700524126861
+                        Visibility: VISIBLE
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.status.1.1700524134514
+                        Visibility: VISIBLE
+              Actions:
+              - CustomActionId: fe97c587-10e5-4951-8583-46507a658cc1
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              ColumnHierarchies: []
+          - TableVisual:
+              VisualId: c3c81963-a8eb-4512-ae48-4b635cc51bbb
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: "<visual-title>Details</visual-title>"
+              Subtitle:
+                Visibility: VISIBLE
+              ChartConfiguration:
+                FieldWells:
+                  TableAggregatedFieldWells:
+                    GroupBy:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.accountName.1.1700336804583
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: accountName
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.Region.7.1700337012105
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: Region
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.accountTag.6.1700336883621
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: accountTag
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.checkname.2.1700336807828
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: checkname
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.status.7.1700336939517
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: status
+                    - DateDimensionField:
+                        FieldId: TACheckQSLT.ingestionTime.9.1700337154231
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: ingestionTime
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.Reason.7.1700449560394
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: Reason
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.resourceId.7.1700449629545
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: resourceId
+                    Values: []
+                SortConfiguration:
+                  PaginationConfiguration:
+                    PageSize: 10000
+                    PageNumber: 1
+                TableOptions:
+                  HeaderStyle:
+                    FontConfiguration:
+                      FontSize: {}
+                      FontColor: "#000000"
+                    HorizontalTextAlignment: AUTO
+                    VerticalTextAlignment: MIDDLE
+                    BackgroundColor: "#33AEB1"
+                  CellStyle:
+                    Height: 25
+                FieldOptions:
+                  SelectedFieldOptions: []
+                  Order:
+                  - TACheckQSLT.accountName.1.1700336804583
+                  - TACheckQSLT.Region.7.1700337012105
+                  - TACheckQSLT.accountTag.6.1700336883621
+                  - TACheckQSLT.checkname.2.1700336807828
+                  - TACheckQSLT.status.7.1700336939517
+                  - TACheckQSLT.ingestionTime.9.1700337154231
+                  - TACheckQSLT.Reason.7.1700449560394
+                  - TACheckQSLT.resourceId.7.1700449629545
+              ConditionalFormatting:
+                ConditionalFormattingOptions:
+                - Cell:
+                    FieldId: TACheckQSLT.status.7.1700336939517
+                    TextFormat:
+                      BackgroundColor:
+                        Solid:
+                          Expression: locate({status}, "ERROR") > 0
+                          Color: "#DE3B00"
+                - Cell:
+                    FieldId: TACheckQSLT.status.7.1700336939517
+                    TextFormat:
+                      BackgroundColor:
+                        Solid:
+                          Expression: '{status} = "OK"'
+                          Color: "#33AEB1"
+                - Cell:
+                    FieldId: TACheckQSLT.status.7.1700336939517
+                    TextFormat:
+                      BackgroundColor:
+                        Solid:
+                          Expression: '{status} = "WARN"'
+                          Color: "#F7E65A"
+              Actions:
+              - CustomActionId: '07355787-a526-4e75-9f4b-36ce613264fb'
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+          Layouts:
+          - Configuration:
+              GridLayout:
+                Elements:
+                - ElementId: 64a2299b-0c14-4282-b0a3-ef5d50c0b845
+                  ElementType: VISUAL
+                  ColumnIndex: 0
+                  ColumnSpan: 11
+                  RowIndex: 0
+                  RowSpan: 9
+                - ElementId: 7b5f41bc-ecbe-4af3-bbe0-f83138792fc7
+                  ElementType: VISUAL
+                  ColumnIndex: 11
+                  ColumnSpan: 11
+                  RowIndex: 0
+                  RowSpan: 9
+                - ElementId: 99417de6-142a-4bea-a7b1-561867f77660
+                  ElementType: VISUAL
+                  ColumnIndex: 22
+                  ColumnSpan: 14
+                  RowIndex: 0
+                  RowSpan: 9
+                - ElementId: c3c81963-a8eb-4512-ae48-4b635cc51bbb
+                  ElementType: VISUAL
+                  ColumnIndex: 0
+                  ColumnSpan: 36
+                  RowIndex: 9
+                  RowSpan: 12
+                CanvasSizeOptions:
+                  ScreenCanvasSizeOptions:
+                    ResizeOption: RESPONSIVE
+          SheetControlLayouts:
+          - Configuration:
+              GridLayout:
+                Elements:
+                - ElementId: a340863a-fdd4-43f8-80db-6c6df2cdcf03
+                  ElementType: FILTER_CONTROL
+                  ColumnSpan: 2
+                  RowSpan: 1
+          ContentType: INTERACTIVE
+        - SheetId: 22414710-da41-4425-a3aa-406862cafe9a
+          Name: Cost Optimization
+          FilterControls:
+          - Dropdown:
+              FilterControlId: 17a79d72-0e7d-4c0b-bb43-279a5744ee00
+              Title: accountName equals
+              SourceFilterId: 59bcc08d-771c-4a2b-8203-77bdd453d3ef
+              DisplayOptions:
+                SelectAllOptions:
+                  Visibility: VISIBLE
+                TitleOptions:
+                  Visibility: VISIBLE
+                  FontConfiguration:
+                    FontSize:
+                      Relative: MEDIUM
+              Type: MULTI_SELECT
+          Visuals:
+          - PieChartVisual:
+              VisualId: a38a0b2a-9034-4450-83fd-341c451df7bc
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: "<visual-title>OverAll  Check Status</visual-title>"
+              Subtitle:
+                Visibility: HIDDEN
+              ChartConfiguration:
+                FieldWells:
+                  PieChartAggregatedFieldWells:
+                    Category:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.status.0.1700341201406
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: status
+                    Values: []
+                SortConfiguration:
+                  CategoryItemsLimit:
+                    OtherCategories: INCLUDE
+                  SmallMultiplesLimitConfiguration:
+                    OtherCategories: INCLUDE
+                DonutOptions:
+                  ArcOptions:
+                    ArcThickness: WHOLE
+                Legend:
+                  Visibility: VISIBLE
+                  Title:
+                    Visibility: VISIBLE
+                  Position: BOTTOM
+                DataLabels:
+                  Visibility: VISIBLE
+                  CategoryLabelVisibility: VISIBLE
+                  MeasureLabelVisibility: HIDDEN
+                  Position: OUTSIDE
+                  LabelFontConfiguration:
+                    FontSize:
+                      Relative: MEDIUM
+                  Overlap: DISABLE_OVERLAP
+                Tooltip:
+                  TooltipVisibility: VISIBLE
+                  SelectedTooltipType: DETAILED
+                  FieldBasedTooltip:
+                    AggregationVisibility: HIDDEN
+                    TooltipTitleType: PRIMARY_VALUE
+                    TooltipFields:
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.status.0.1700341201406
+                        Visibility: VISIBLE
+                VisualPalette:
+                  ColorMap:
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: Green
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: Red
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: Yellow
+                    Color: "#FFB500"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: ERROR
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: OK
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: WARN
+                    Color: "#F7E65A"
+              Actions:
+              - CustomActionId: 8cdd33f5-d3ee-400e-bd55-82ba41f197d9
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              ColumnHierarchies: []
+          - BarChartVisual:
+              VisualId: 6cabd1fa-ddbd-4f7e-96bb-eca6ee3c7d00
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: "<visual-title>Status by Account</visual-title>"
+              Subtitle:
+                Visibility: VISIBLE
+              ChartConfiguration:
+                FieldWells:
+                  BarChartAggregatedFieldWells:
+                    Category:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.accountName.0.1700340632206
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: accountName
+                    Values: []
+                    Colors:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.status.1.1700340634096
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: status
+                SortConfiguration:
+                  CategorySort:
+                  - FieldSort:
+                      FieldId: TACheckQSLT.accountName.0.1700340632206
+                      Direction: DESC
+                  CategoryItemsLimit:
+                    OtherCategories: INCLUDE
+                  ColorItemsLimit:
+                    OtherCategories: INCLUDE
+                  SmallMultiplesLimitConfiguration:
+                    OtherCategories: INCLUDE
+                Orientation: HORIZONTAL
+                BarsArrangement: STACKED
+                VisualPalette:
+                  ColorMap:
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: Green
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: Red
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: Yellow
+                    Color: "#FFB500"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: ERROR
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: OK
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: WARN
+                    Color: "#F7E65A"
+                Legend:
+                  Visibility: VISIBLE
+                  Position: BOTTOM
+                DataLabels:
+                  Visibility: HIDDEN
+                  Overlap: DISABLE_OVERLAP
+                Tooltip:
+                  TooltipVisibility: VISIBLE
+                  SelectedTooltipType: DETAILED
+                  FieldBasedTooltip:
+                    AggregationVisibility: HIDDEN
+                    TooltipTitleType: PRIMARY_VALUE
+                    TooltipFields:
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.accountName.0.1700340632206
+                        Visibility: VISIBLE
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.status.1.1700340634096
+                        Visibility: VISIBLE
+              Actions:
+              - CustomActionId: 441d2b7c-730e-4920-91e3-0df79b65f68e
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              ColumnHierarchies: []
+          - BarChartVisual:
+              VisualId: 420bdfa6-369d-4ded-9be2-2a71baaddcf0
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: "<visual-title>Status by CheckName</visual-title>"
+              Subtitle:
+                Visibility: VISIBLE
+              ChartConfiguration:
+                FieldWells:
+                  BarChartAggregatedFieldWells:
+                    Category:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.checkname.0.1700524126861
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: checkname
+                    Values: []
+                    Colors:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.status.1.1700524134514
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: status
+                SortConfiguration:
+                  CategorySort:
+                  - FieldSort:
+                      FieldId: TACheckQSLT.checkname.0.1700524126861
+                      Direction: DESC
+                  CategoryItemsLimit:
+                    OtherCategories: INCLUDE
+                  ColorItemsLimit:
+                    OtherCategories: INCLUDE
+                  SmallMultiplesLimitConfiguration:
+                    OtherCategories: INCLUDE
+                Orientation: HORIZONTAL
+                BarsArrangement: STACKED_PERCENT
+                VisualPalette:
+                  ColorMap:
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: Green
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: Red
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: Yellow
+                    Color: "#FFB500"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: ERROR
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: OK
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: WARN
+                    Color: "#F7E65A"
+                CategoryAxis:
+                  ScrollbarOptions:
+                    VisibleRange:
+                      PercentRange:
+                        From: 41.176470588235304
+                        To: 100
+                DataLabels:
+                  Visibility: HIDDEN
+                  Overlap: DISABLE_OVERLAP
+                Tooltip:
+                  TooltipVisibility: VISIBLE
+                  SelectedTooltipType: DETAILED
+                  FieldBasedTooltip:
+                    AggregationVisibility: HIDDEN
+                    TooltipTitleType: PRIMARY_VALUE
+                    TooltipFields:
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.checkname.0.1700524126861
+                        Visibility: VISIBLE
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.status.1.1700524134514
+                        Visibility: VISIBLE
+              Actions:
+              - CustomActionId: b8629d62-d01b-4fda-aefd-06c4cc87873e
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              ColumnHierarchies: []
+          - TableVisual:
+              VisualId: e1082c99-cbfb-496b-8849-d3298c3bfec6
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: "<visual-title>Details</visual-title>"
+              Subtitle:
+                Visibility: VISIBLE
+              ChartConfiguration:
+                FieldWells:
+                  TableAggregatedFieldWells:
+                    GroupBy:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.accountName.1.1700336804583
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: accountName
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.Region.7.1700337012105
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: Region
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.accountTag.6.1700336883621
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: accountTag
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.checkname.2.1700336807828
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: checkname
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.status.7.1700336939517
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: status
+                    - DateDimensionField:
+                        FieldId: TACheckQSLT.ingestionTime.9.1700337154231
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: ingestionTime
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.Reason.7.1700449560394
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: Reason
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.resourceId.7.1700449629545
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: resourceId
+                    Values: []
+                SortConfiguration:
+                  PaginationConfiguration:
+                    PageSize: 10000
+                    PageNumber: 1
+                TableOptions:
+                  HeaderStyle:
+                    FontConfiguration:
+                      FontSize: {}
+                      FontColor: "#000000"
+                    HorizontalTextAlignment: AUTO
+                    VerticalTextAlignment: MIDDLE
+                    BackgroundColor: "#33AEB1"
+                  CellStyle:
+                    Height: 25
+                FieldOptions:
+                  SelectedFieldOptions: []
+                  Order:
+                  - TACheckQSLT.accountName.1.1700336804583
+                  - TACheckQSLT.Region.7.1700337012105
+                  - TACheckQSLT.accountTag.6.1700336883621
+                  - TACheckQSLT.checkname.2.1700336807828
+                  - TACheckQSLT.status.7.1700336939517
+                  - TACheckQSLT.ingestionTime.9.1700337154231
+                  - TACheckQSLT.Reason.7.1700449560394
+                  - TACheckQSLT.resourceId.7.1700449629545
+              ConditionalFormatting:
+                ConditionalFormattingOptions:
+                - Cell:
+                    FieldId: TACheckQSLT.status.7.1700336939517
+                    TextFormat:
+                      BackgroundColor:
+                        Solid:
+                          Expression: locate({status}, "ERROR") > 0
+                          Color: "#DE3B00"
+                - Cell:
+                    FieldId: TACheckQSLT.status.7.1700336939517
+                    TextFormat:
+                      BackgroundColor:
+                        Solid:
+                          Expression: '{status} = "OK"'
+                          Color: "#33AEB1"
+                - Cell:
+                    FieldId: TACheckQSLT.status.7.1700336939517
+                    TextFormat:
+                      BackgroundColor:
+                        Solid:
+                          Expression: '{status} = "WARN"'
+                          Color: "#F7E65A"
+              Actions:
+              - CustomActionId: 8d3f6362-05d3-452b-a895-22e72f8657bb
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+          Layouts:
+          - Configuration:
+              GridLayout:
+                Elements:
+                - ElementId: 6cabd1fa-ddbd-4f7e-96bb-eca6ee3c7d00
+                  ElementType: VISUAL
+                  ColumnIndex: 0
+                  ColumnSpan: 11
+                  RowIndex: 0
+                  RowSpan: 9
+                - ElementId: a38a0b2a-9034-4450-83fd-341c451df7bc
+                  ElementType: VISUAL
+                  ColumnIndex: 11
+                  ColumnSpan: 11
+                  RowIndex: 0
+                  RowSpan: 9
+                - ElementId: 420bdfa6-369d-4ded-9be2-2a71baaddcf0
+                  ElementType: VISUAL
+                  ColumnIndex: 22
+                  ColumnSpan: 14
+                  RowIndex: 0
+                  RowSpan: 9
+                - ElementId: e1082c99-cbfb-496b-8849-d3298c3bfec6
+                  ElementType: VISUAL
+                  ColumnIndex: 0
+                  ColumnSpan: 36
+                  RowIndex: 9
+                  RowSpan: 12
+                CanvasSizeOptions:
+                  ScreenCanvasSizeOptions:
+                    ResizeOption: RESPONSIVE
+          SheetControlLayouts:
+          - Configuration:
+              GridLayout:
+                Elements:
+                - ElementId: 17a79d72-0e7d-4c0b-bb43-279a5744ee00
+                  ElementType: FILTER_CONTROL
+                  ColumnSpan: 2
+                  RowSpan: 1
+          ContentType: INTERACTIVE
+        - SheetId: 67979cbb-ca16-4872-b597-f01da711b5ca
+          Name: Performance
+          FilterControls:
+          - Dropdown:
+              FilterControlId: e9d4d5b5-6349-4743-8ca8-4a2b27524d44
+              Title: accountName equals
+              SourceFilterId: 200e9739-881d-4c73-8cc1-ef244809a20e
+              DisplayOptions:
+                SelectAllOptions:
+                  Visibility: VISIBLE
+                TitleOptions:
+                  Visibility: VISIBLE
+                  FontConfiguration:
+                    FontSize:
+                      Relative: MEDIUM
+              Type: MULTI_SELECT
+          Visuals:
+          - PieChartVisual:
+              VisualId: eaca3c68-64ba-4981-b8f8-93a8914f4c09
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: "<visual-title>OverAll  Check Status</visual-title>"
+              Subtitle:
+                Visibility: HIDDEN
+              ChartConfiguration:
+                FieldWells:
+                  PieChartAggregatedFieldWells:
+                    Category:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.status.0.1700341201406
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: status
+                    Values: []
+                SortConfiguration:
+                  CategoryItemsLimit:
+                    OtherCategories: INCLUDE
+                  SmallMultiplesLimitConfiguration:
+                    OtherCategories: INCLUDE
+                DonutOptions:
+                  ArcOptions:
+                    ArcThickness: WHOLE
+                Legend:
+                  Visibility: VISIBLE
+                  Title:
+                    Visibility: VISIBLE
+                  Position: BOTTOM
+                DataLabels:
+                  Visibility: VISIBLE
+                  CategoryLabelVisibility: VISIBLE
+                  MeasureLabelVisibility: HIDDEN
+                  Position: OUTSIDE
+                  LabelFontConfiguration:
+                    FontSize:
+                      Relative: MEDIUM
+                  Overlap: DISABLE_OVERLAP
+                Tooltip:
+                  TooltipVisibility: VISIBLE
+                  SelectedTooltipType: DETAILED
+                  FieldBasedTooltip:
+                    AggregationVisibility: HIDDEN
+                    TooltipTitleType: PRIMARY_VALUE
+                    TooltipFields:
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.status.0.1700341201406
+                        Visibility: VISIBLE
+                VisualPalette:
+                  ColorMap:
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: Green
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: Red
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: Yellow
+                    Color: "#FFB500"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: ERROR
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: OK
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: WARN
+                    Color: "#F7E65A"
+              Actions:
+              - CustomActionId: f52f54a4-2360-4f7a-b89f-3801ee4db6ac
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              ColumnHierarchies: []
+          - BarChartVisual:
+              VisualId: 9c24360e-30e8-4ca5-9884-862cb0f336f5
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: "<visual-title>Status by Account</visual-title>"
+              Subtitle:
+                Visibility: VISIBLE
+              ChartConfiguration:
+                FieldWells:
+                  BarChartAggregatedFieldWells:
+                    Category:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.accountName.0.1700340632206
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: accountName
+                    Values: []
+                    Colors:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.status.1.1700340634096
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: status
+                SortConfiguration:
+                  CategorySort:
+                  - FieldSort:
+                      FieldId: TACheckQSLT.accountName.0.1700340632206
+                      Direction: DESC
+                  CategoryItemsLimit:
+                    OtherCategories: INCLUDE
+                  ColorItemsLimit:
+                    OtherCategories: INCLUDE
+                  SmallMultiplesLimitConfiguration:
+                    OtherCategories: INCLUDE
+                Orientation: HORIZONTAL
+                BarsArrangement: STACKED
+                VisualPalette:
+                  ColorMap:
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: Green
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: Red
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: Yellow
+                    Color: "#FFB500"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: ERROR
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: OK
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: WARN
+                    Color: "#F7E65A"
+                Legend:
+                  Visibility: VISIBLE
+                  Position: BOTTOM
+                DataLabels:
+                  Visibility: HIDDEN
+                  Overlap: DISABLE_OVERLAP
+                Tooltip:
+                  TooltipVisibility: VISIBLE
+                  SelectedTooltipType: DETAILED
+                  FieldBasedTooltip:
+                    AggregationVisibility: HIDDEN
+                    TooltipTitleType: PRIMARY_VALUE
+                    TooltipFields:
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.accountName.0.1700340632206
+                        Visibility: VISIBLE
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.status.1.1700340634096
+                        Visibility: VISIBLE
+              Actions:
+              - CustomActionId: '09285c4b-ecf3-4582-a0bb-818ea09e621e'
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              ColumnHierarchies: []
+          - BarChartVisual:
+              VisualId: d7ef7363-9392-4089-86af-596501f04045
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: "<visual-title>Status by CheckName</visual-title>"
+              Subtitle:
+                Visibility: VISIBLE
+              ChartConfiguration:
+                FieldWells:
+                  BarChartAggregatedFieldWells:
+                    Category:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.checkname.0.1700524126861
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: checkname
+                    Values: []
+                    Colors:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.status.1.1700524134514
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: status
+                SortConfiguration:
+                  CategorySort:
+                  - FieldSort:
+                      FieldId: TACheckQSLT.checkname.0.1700524126861
+                      Direction: DESC
+                  CategoryItemsLimit:
+                    OtherCategories: INCLUDE
+                  ColorItemsLimit:
+                    OtherCategories: INCLUDE
+                  SmallMultiplesLimitConfiguration:
+                    OtherCategories: INCLUDE
+                Orientation: HORIZONTAL
+                BarsArrangement: STACKED_PERCENT
+                VisualPalette:
+                  ColorMap:
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: Green
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: Red
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: Yellow
+                    Color: "#FFB500"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: ERROR
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: OK
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: WARN
+                    Color: "#F7E65A"
+                CategoryAxis:
+                  ScrollbarOptions:
+                    VisibleRange:
+                      PercentRange:
+                        From: 41.176470588235304
+                        To: 100
+                DataLabels:
+                  Visibility: HIDDEN
+                  Overlap: DISABLE_OVERLAP
+                Tooltip:
+                  TooltipVisibility: VISIBLE
+                  SelectedTooltipType: DETAILED
+                  FieldBasedTooltip:
+                    AggregationVisibility: HIDDEN
+                    TooltipTitleType: PRIMARY_VALUE
+                    TooltipFields:
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.checkname.0.1700524126861
+                        Visibility: VISIBLE
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.status.1.1700524134514
+                        Visibility: VISIBLE
+              Actions:
+              - CustomActionId: 9bb160ed-a14f-48df-b276-04d3496aaba4
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              ColumnHierarchies: []
+          - TableVisual:
+              VisualId: 32ae51ff-4eb1-42aa-b7b7-54ef58c7b59f
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: "<visual-title>Details</visual-title>"
+              Subtitle:
+                Visibility: VISIBLE
+              ChartConfiguration:
+                FieldWells:
+                  TableAggregatedFieldWells:
+                    GroupBy:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.accountName.1.1700336804583
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: accountName
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.Region.7.1700337012105
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: Region
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.accountTag.6.1700336883621
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: accountTag
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.checkname.2.1700336807828
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: checkname
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.status.7.1700336939517
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: status
+                    - DateDimensionField:
+                        FieldId: TACheckQSLT.ingestionTime.9.1700337154231
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: ingestionTime
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.Reason.7.1700449560394
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: Reason
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.resourceId.7.1700449629545
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: resourceId
+                    Values: []
+                SortConfiguration:
+                  PaginationConfiguration:
+                    PageSize: 10000
+                    PageNumber: 1
+                TableOptions:
+                  HeaderStyle:
+                    FontConfiguration:
+                      FontSize: {}
+                      FontColor: "#000000"
+                    HorizontalTextAlignment: AUTO
+                    VerticalTextAlignment: MIDDLE
+                    BackgroundColor: "#33AEB1"
+                  CellStyle:
+                    Height: 25
+                FieldOptions:
+                  SelectedFieldOptions: []
+                  Order:
+                  - TACheckQSLT.accountName.1.1700336804583
+                  - TACheckQSLT.Region.7.1700337012105
+                  - TACheckQSLT.accountTag.6.1700336883621
+                  - TACheckQSLT.checkname.2.1700336807828
+                  - TACheckQSLT.status.7.1700336939517
+                  - TACheckQSLT.ingestionTime.9.1700337154231
+                  - TACheckQSLT.Reason.7.1700449560394
+                  - TACheckQSLT.resourceId.7.1700449629545
+              ConditionalFormatting:
+                ConditionalFormattingOptions:
+                - Cell:
+                    FieldId: TACheckQSLT.status.7.1700336939517
+                    TextFormat:
+                      BackgroundColor:
+                        Solid:
+                          Expression: locate({status}, "ERROR") > 0
+                          Color: "#DE3B00"
+                - Cell:
+                    FieldId: TACheckQSLT.status.7.1700336939517
+                    TextFormat:
+                      BackgroundColor:
+                        Solid:
+                          Expression: '{status} = "OK"'
+                          Color: "#33AEB1"
+                - Cell:
+                    FieldId: TACheckQSLT.status.7.1700336939517
+                    TextFormat:
+                      BackgroundColor:
+                        Solid:
+                          Expression: '{status} = "WARN"'
+                          Color: "#F7E65A"
+              Actions:
+              - CustomActionId: 63a2f912-573c-4fa6-9f64-cfb91be2b0aa
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+          Layouts:
+          - Configuration:
+              GridLayout:
+                Elements:
+                - ElementId: 9c24360e-30e8-4ca5-9884-862cb0f336f5
+                  ElementType: VISUAL
+                  ColumnIndex: 0
+                  ColumnSpan: 11
+                  RowIndex: 0
+                  RowSpan: 9
+                - ElementId: eaca3c68-64ba-4981-b8f8-93a8914f4c09
+                  ElementType: VISUAL
+                  ColumnIndex: 11
+                  ColumnSpan: 11
+                  RowIndex: 0
+                  RowSpan: 9
+                - ElementId: d7ef7363-9392-4089-86af-596501f04045
+                  ElementType: VISUAL
+                  ColumnIndex: 22
+                  ColumnSpan: 14
+                  RowIndex: 0
+                  RowSpan: 9
+                - ElementId: 32ae51ff-4eb1-42aa-b7b7-54ef58c7b59f
+                  ElementType: VISUAL
+                  ColumnIndex: 0
+                  ColumnSpan: 36
+                  RowIndex: 9
+                  RowSpan: 12
+                CanvasSizeOptions:
+                  ScreenCanvasSizeOptions:
+                    ResizeOption: RESPONSIVE
+          SheetControlLayouts:
+          - Configuration:
+              GridLayout:
+                Elements:
+                - ElementId: e9d4d5b5-6349-4743-8ca8-4a2b27524d44
+                  ElementType: FILTER_CONTROL
+                  ColumnSpan: 2
+                  RowSpan: 1
+          ContentType: INTERACTIVE
+        - SheetId: 06f4694a-4f81-4480-974e-5ab071795307
+          Name: Operational Excellence
+          FilterControls:
+          - Dropdown:
+              FilterControlId: 756ae9d7-de7e-45e2-a4a5-60c40bb223d2
+              Title: accountName equals
+              SourceFilterId: 7ae91da8-748c-473a-b95c-db9577a4f791
+              DisplayOptions:
+                SelectAllOptions:
+                  Visibility: VISIBLE
+                TitleOptions:
+                  Visibility: VISIBLE
+                  FontConfiguration:
+                    FontSize:
+                      Relative: MEDIUM
+              Type: MULTI_SELECT
+          Visuals:
+          - PieChartVisual:
+              VisualId: 4f28e04e-9b8a-466a-95f2-aacc9504f9a5
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: "<visual-title>OverAll  Check Status</visual-title>"
+              Subtitle:
+                Visibility: HIDDEN
+              ChartConfiguration:
+                FieldWells:
+                  PieChartAggregatedFieldWells:
+                    Category:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.status.0.1700341201406
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: status
+                    Values: []
+                SortConfiguration:
+                  CategoryItemsLimit:
+                    OtherCategories: INCLUDE
+                  SmallMultiplesLimitConfiguration:
+                    OtherCategories: INCLUDE
+                DonutOptions:
+                  ArcOptions:
+                    ArcThickness: WHOLE
+                Legend:
+                  Visibility: VISIBLE
+                  Title:
+                    Visibility: VISIBLE
+                  Position: BOTTOM
+                DataLabels:
+                  Visibility: VISIBLE
+                  CategoryLabelVisibility: VISIBLE
+                  MeasureLabelVisibility: HIDDEN
+                  Position: OUTSIDE
+                  LabelFontConfiguration:
+                    FontSize:
+                      Relative: MEDIUM
+                  Overlap: DISABLE_OVERLAP
+                Tooltip:
+                  TooltipVisibility: VISIBLE
+                  SelectedTooltipType: DETAILED
+                  FieldBasedTooltip:
+                    AggregationVisibility: HIDDEN
+                    TooltipTitleType: PRIMARY_VALUE
+                    TooltipFields:
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.status.0.1700341201406
+                        Visibility: VISIBLE
+                VisualPalette:
+                  ColorMap:
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: Green
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: Red
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: Yellow
+                    Color: "#FFB500"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: ERROR
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: OK
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.0.1700341201406
+                      FieldValue: WARN
+                    Color: "#F7E65A"
+              Actions:
+              - CustomActionId: a8d83593-1484-4f1a-88fc-3ac7e4d0c7a0
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              ColumnHierarchies: []
+          - BarChartVisual:
+              VisualId: 61f64ed0-e282-414a-93d3-112440c65b3b
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: "<visual-title>Status by Account</visual-title>"
+              Subtitle:
+                Visibility: VISIBLE
+              ChartConfiguration:
+                FieldWells:
+                  BarChartAggregatedFieldWells:
+                    Category:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.accountName.0.1700340632206
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: accountName
+                    Values: []
+                    Colors:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.status.1.1700340634096
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: status
+                SortConfiguration:
+                  CategorySort:
+                  - FieldSort:
+                      FieldId: TACheckQSLT.accountName.0.1700340632206
+                      Direction: DESC
+                  CategoryItemsLimit:
+                    OtherCategories: INCLUDE
+                  ColorItemsLimit:
+                    OtherCategories: INCLUDE
+                  SmallMultiplesLimitConfiguration:
+                    OtherCategories: INCLUDE
+                Orientation: HORIZONTAL
+                BarsArrangement: STACKED
+                VisualPalette:
+                  ColorMap:
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: Green
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: Red
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: Yellow
+                    Color: "#FFB500"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: ERROR
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: OK
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700340634096
+                      FieldValue: WARN
+                    Color: "#F7E65A"
+                Legend:
+                  Visibility: VISIBLE
+                  Position: BOTTOM
+                DataLabels:
+                  Visibility: HIDDEN
+                  Overlap: DISABLE_OVERLAP
+                Tooltip:
+                  TooltipVisibility: VISIBLE
+                  SelectedTooltipType: DETAILED
+                  FieldBasedTooltip:
+                    AggregationVisibility: HIDDEN
+                    TooltipTitleType: PRIMARY_VALUE
+                    TooltipFields:
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.accountName.0.1700340632206
+                        Visibility: VISIBLE
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.status.1.1700340634096
+                        Visibility: VISIBLE
+              Actions:
+              - CustomActionId: 90b93504-1f0b-4c03-abf2-5e86844f144b
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              ColumnHierarchies: []
+          - BarChartVisual:
+              VisualId: e7fbe288-3cd1-45be-bbd9-29222f48451e
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: "<visual-title>Status by CheckName</visual-title>"
+              Subtitle:
+                Visibility: VISIBLE
+              ChartConfiguration:
+                FieldWells:
+                  BarChartAggregatedFieldWells:
+                    Category:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.checkname.0.1700524126861
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: checkname
+                    Values: []
+                    Colors:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.status.1.1700524134514
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: status
+                SortConfiguration:
+                  CategorySort:
+                  - FieldSort:
+                      FieldId: TACheckQSLT.checkname.0.1700524126861
+                      Direction: DESC
+                  CategoryItemsLimit:
+                    OtherCategories: INCLUDE
+                  ColorItemsLimit:
+                    OtherCategories: INCLUDE
+                  SmallMultiplesLimitConfiguration:
+                    OtherCategories: INCLUDE
+                Orientation: HORIZONTAL
+                BarsArrangement: STACKED_PERCENT
+                VisualPalette:
+                  ColorMap:
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: Green
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: Red
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: Yellow
+                    Color: "#FFB500"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: ERROR
+                    Color: "#DE3B00"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: OK
+                    Color: "#33AEB1"
+                  - Element:
+                      FieldId: TACheckQSLT.status.1.1700524134514
+                      FieldValue: WARN
+                    Color: "#F7E65A"
+                CategoryAxis:
+                  ScrollbarOptions:
+                    VisibleRange:
+                      PercentRange:
+                        From: 41.176470588235304
+                        To: 100
+                DataLabels:
+                  Visibility: HIDDEN
+                  Overlap: DISABLE_OVERLAP
+                Tooltip:
+                  TooltipVisibility: VISIBLE
+                  SelectedTooltipType: DETAILED
+                  FieldBasedTooltip:
+                    AggregationVisibility: HIDDEN
+                    TooltipTitleType: PRIMARY_VALUE
+                    TooltipFields:
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.checkname.0.1700524126861
+                        Visibility: VISIBLE
+                    - FieldTooltipItem:
+                        FieldId: TACheckQSLT.status.1.1700524134514
+                        Visibility: VISIBLE
+              Actions:
+              - CustomActionId: f7b49b5a-afe9-473b-9fa8-22ac38e8a024
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+              ColumnHierarchies: []
+          - TableVisual:
+              VisualId: 90cf98c5-411d-4237-aea5-78071c18c8ed
+              Title:
+                Visibility: VISIBLE
+                FormatText:
+                  RichText: "<visual-title>Details</visual-title>"
+              Subtitle:
+                Visibility: VISIBLE
+              ChartConfiguration:
+                FieldWells:
+                  TableAggregatedFieldWells:
+                    GroupBy:
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.accountName.1.1700336804583
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: accountName
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.Region.7.1700337012105
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: Region
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.accountTag.6.1700336883621
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: accountTag
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.checkname.2.1700336807828
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: checkname
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.status.7.1700336939517
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: status
+                    - DateDimensionField:
+                        FieldId: TACheckQSLT.ingestionTime.9.1700337154231
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: ingestionTime
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.Reason.7.1700449560394
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: Reason
+                    - CategoricalDimensionField:
+                        FieldId: TACheckQSLT.resourceId.7.1700449629545
+                        Column:
+                          DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: resourceId
+                    Values: []
+                SortConfiguration:
+                  PaginationConfiguration:
+                    PageSize: 10000
+                    PageNumber: 1
+                TableOptions:
+                  HeaderStyle:
+                    FontConfiguration:
+                      FontSize: {}
+                      FontColor: "#000000"
+                    HorizontalTextAlignment: AUTO
+                    VerticalTextAlignment: MIDDLE
+                    BackgroundColor: "#33AEB1"
+                  CellStyle:
+                    Height: 25
+                FieldOptions:
+                  SelectedFieldOptions: []
+                  Order:
+                  - TACheckQSLT.accountName.1.1700336804583
+                  - TACheckQSLT.Region.7.1700337012105
+                  - TACheckQSLT.accountTag.6.1700336883621
+                  - TACheckQSLT.checkname.2.1700336807828
+                  - TACheckQSLT.status.7.1700336939517
+                  - TACheckQSLT.ingestionTime.9.1700337154231
+                  - TACheckQSLT.Reason.7.1700449560394
+                  - TACheckQSLT.resourceId.7.1700449629545
+              ConditionalFormatting:
+                ConditionalFormattingOptions:
+                - Cell:
+                    FieldId: TACheckQSLT.status.7.1700336939517
+                    TextFormat:
+                      BackgroundColor:
+                        Solid:
+                          Expression: locate({status}, "ERROR") > 0
+                          Color: "#DE3B00"
+                - Cell:
+                    FieldId: TACheckQSLT.status.7.1700336939517
+                    TextFormat:
+                      BackgroundColor:
+                        Solid:
+                          Expression: '{status} = "OK"'
+                          Color: "#33AEB1"
+                - Cell:
+                    FieldId: TACheckQSLT.status.7.1700336939517
+                    TextFormat:
+                      BackgroundColor:
+                        Solid:
+                          Expression: '{status} = "WARN"'
+                          Color: "#F7E65A"
+              Actions:
+              - CustomActionId: 3ae3a809-4a7d-4044-a041-ede481984db8
+                Name: Action 1
+                Status: ENABLED
+                Trigger: DATA_POINT_CLICK
+                ActionOperations:
+                - FilterOperation:
+                    SelectedFieldsConfiguration:
+                      SelectedFieldOptions: ALL_FIELDS
+                    TargetVisualsConfiguration:
+                      SameSheetTargetVisualConfiguration:
+                        TargetVisualOptions: ALL_VISUALS
+          Layouts:
+          - Configuration:
+              GridLayout:
+                Elements:
+                - ElementId: 61f64ed0-e282-414a-93d3-112440c65b3b
+                  ElementType: VISUAL
+                  ColumnIndex: 0
+                  ColumnSpan: 11
+                  RowIndex: 0
+                  RowSpan: 9
+                - ElementId: 4f28e04e-9b8a-466a-95f2-aacc9504f9a5
+                  ElementType: VISUAL
+                  ColumnIndex: 11
+                  ColumnSpan: 11
+                  RowIndex: 0
+                  RowSpan: 9
+                - ElementId: e7fbe288-3cd1-45be-bbd9-29222f48451e
+                  ElementType: VISUAL
+                  ColumnIndex: 22
+                  ColumnSpan: 14
+                  RowIndex: 0
+                  RowSpan: 9
+                - ElementId: 90cf98c5-411d-4237-aea5-78071c18c8ed
+                  ElementType: VISUAL
+                  ColumnIndex: 0
+                  ColumnSpan: 36
+                  RowIndex: 9
+                  RowSpan: 12
+                CanvasSizeOptions:
+                  ScreenCanvasSizeOptions:
+                    ResizeOption: RESPONSIVE
+          SheetControlLayouts:
+          - Configuration:
+              GridLayout:
+                Elements:
+                - ElementId: 756ae9d7-de7e-45e2-a4a5-60c40bb223d2
+                  ElementType: FILTER_CONTROL
+                  ColumnSpan: 2
+                  RowSpan: 1
+          ContentType: INTERACTIVE
+        CalculatedFields:
+        - DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+          Name: RemainingLimit
+          Expression: ifelse(isNotNull(currentusage),limitamount-currentusage,currentusage)
+        ParameterDeclarations: []
+        FilterGroups:
+        - FilterGroupId: ccffb002-257f-4a7c-b556-1d992f864c5c
+          Filters:
+          - CategoryFilter:
+              FilterId: 9a7c7ba0-f900-4d92-b9ac-bf67fcf7e329
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: category
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - fault_tolerance
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 4d1dd502-c729-4e02-9038-46b3f87a4491
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - a7e73e98-9a54-4e0d-86cf-bb09978119dc
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: 77b04a20-79ff-4bb9-a58f-c5180e467997
+          Filters:
+          - CategoryFilter:
+              FilterId: dfa2b853-a911-4777-8f8b-c39d9596c32d
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: category
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - service_limits
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 821d19ef-ecbe-4b87-a3cf-3dbfee47229f
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - 9dbe7c93-a4ed-4eaa-8775-91fdd0abb2cd
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: 0e8db7fc-ceb5-4f95-940c-8d21e1a74e3e
+          Filters:
+          - CategoryFilter:
+              FilterId: 8bcc64f9-4936-447a-acdc-212fb03dabc3
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: category
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - fault_tolerance
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 4d1dd502-c729-4e02-9038-46b3f87a4491
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - 54fbef63-e8a4-4cb5-949d-e8d54267cd81
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: e4553197-eb98-4df9-9773-abd3785b9be1
+          Filters:
+          - CategoryFilter:
+              FilterId: 1340f185-fba8-4564-9a77-b54f8533fc86
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: category
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - cost_optimizing
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 22414710-da41-4425-a3aa-406862cafe9a
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - 6cabd1fa-ddbd-4f7e-96bb-eca6ee3c7d00
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: df230d42-4594-4753-b42b-e7ccd60687c9
+          Filters:
+          - CategoryFilter:
+              FilterId: 4da2240e-a090-4a35-8a53-ad7361b2b5db
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: accountName
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  SelectAllOptions: FILTER_ALL_VALUES
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 4d1dd502-c729-4e02-9038-46b3f87a4491
+                Scope: ALL_VISUALS
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: bf797d9a-f631-4e9b-b526-11c8d09cfe37
+          Filters:
+          - CategoryFilter:
+              FilterId: 815ccaec-b43c-43e7-af47-4fe69b7ea7ae
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: accountName
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  SelectAllOptions: FILTER_ALL_VALUES
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 3ba02ebe-66a6-4521-871d-63df93c1f535
+                Scope: ALL_VISUALS
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: 5f797d4e-594b-48c3-a335-e27aa204b1f6
+          Filters:
+          - CategoryFilter:
+              FilterId: 56a34c16-6fb2-43d7-bba6-39827d485942
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: category
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - fault_tolerance
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 4d1dd502-c729-4e02-9038-46b3f87a4491
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - d91aed16-3927-4e58-a03b-6159d19100e5
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: 96da7b9d-74d7-4a4a-aa5c-1ca448a90b6c
+          Filters:
+          - CategoryFilter:
+              FilterId: d84850bb-c7ed-4145-8531-5018e46f945c
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: category
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - cost_optimizing
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 22414710-da41-4425-a3aa-406862cafe9a
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - 420bdfa6-369d-4ded-9be2-2a71baaddcf0
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: d9115d56-94c1-470a-9b4b-9fffd70e42d4
+          Filters:
+          - CategoryFilter:
+              FilterId: 4ccd1358-ae3d-45fd-8ba9-74f33264ad53
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: category
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - fault_tolerance
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 4d1dd502-c729-4e02-9038-46b3f87a4491
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - 9c2cd630-bfeb-4255-afb9-a968cc047c79
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: e186d77b-06b4-44e4-9970-ceda6eb12429
+          Filters:
+          - CategoryFilter:
+              FilterId: 54a00c23-1863-4186-ad77-bb184adedede
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: category
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - cost_optimizing
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 22414710-da41-4425-a3aa-406862cafe9a
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - e1082c99-cbfb-496b-8849-d3298c3bfec6
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: 4882dbf1-a2d1-4b78-8872-38001f030912
+          Filters:
+          - CategoryFilter:
+              FilterId: 04f2f3e8-7013-4db7-8f48-c355e16d4d93
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: category
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - cost_optimizing
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 22414710-da41-4425-a3aa-406862cafe9a
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - a38a0b2a-9034-4450-83fd-341c451df7bc
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: ac357fff-3bda-4a9d-aa42-92be92b678a5
+          Filters:
+          - CategoryFilter:
+              FilterId: 48d0d4fb-dcf4-4544-8ba1-f7e326a019d2
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: category
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - security
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 3ba02ebe-66a6-4521-871d-63df93c1f535
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - 99417de6-142a-4bea-a7b1-561867f77660
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: 31595d99-0ca3-4269-b293-baf20b87bf29
+          Filters:
+          - CategoryFilter:
+              FilterId: 6d837956-750f-490d-8c2d-e94b266af866
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: accountName
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  SelectAllOptions: FILTER_ALL_VALUES
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 821d19ef-ecbe-4b87-a3cf-3dbfee47229f
+                Scope: ALL_VISUALS
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: b7f35a09-5a99-4ae7-a640-8545e00bd351
+          Filters:
+          - CategoryFilter:
+              FilterId: b5470b01-a815-4248-ac7b-3737f6c353bb
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: category
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - service_limits
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 821d19ef-ecbe-4b87-a3cf-3dbfee47229f
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - efb8d721-0b2c-4702-b412-344670863611
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: 7b43a679-f7bf-431b-990d-8dbb399ec862
+          Filters:
+          - CategoryFilter:
+              FilterId: 3a659448-26bd-4a9f-95d5-8f0b0d966b70
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: category
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - security
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 3ba02ebe-66a6-4521-871d-63df93c1f535
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - 7b5f41bc-ecbe-4af3-bbe0-f83138792fc7
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: c5058b6b-5a53-4f9f-8f66-20e0bcb1141a
+          Filters:
+          - CategoryFilter:
+              FilterId: 823ceff7-530a-49a8-a9e3-b9681ea4881d
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: category
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - security
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 3ba02ebe-66a6-4521-871d-63df93c1f535
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - 64a2299b-0c14-4282-b0a3-ef5d50c0b845
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: abb70108-c781-4f3b-8b4b-74eda1735ef5
+          Filters:
+          - CategoryFilter:
+              FilterId: f76de78a-1ad7-4707-a8ff-6441c91b16bf
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: category
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - security
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 3ba02ebe-66a6-4521-871d-63df93c1f535
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - c3c81963-a8eb-4512-ae48-4b635cc51bbb
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: 9ca14c17-2dd6-45b2-9530-de4e14f210cb
+          Filters:
+          - CategoryFilter:
+              FilterId: 59bcc08d-771c-4a2b-8203-77bdd453d3ef
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: accountName
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  SelectAllOptions: FILTER_ALL_VALUES
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 22414710-da41-4425-a3aa-406862cafe9a
+                Scope: ALL_VISUALS
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: b319e880-aaf8-4344-bf0d-d7d09e680320
+          Filters:
+          - CategoryFilter:
+              FilterId: 05caba7b-69a9-478b-9a7a-40b748b92828
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: category
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - service_limits
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 821d19ef-ecbe-4b87-a3cf-3dbfee47229f
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - daa04541-45f0-487e-99eb-19ca599f8c6d
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: 0de1800d-3a75-4f4b-90aa-5b37fa61ffbb
+          Filters:
+          - CategoryFilter:
+              FilterId: ea244e54-3922-43be-8ace-6ade386bc007
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: category
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - service_limits
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 821d19ef-ecbe-4b87-a3cf-3dbfee47229f
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - 34bfd617-23b0-4ecb-b645-9c6d92d41cfe
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: 15d52677-3384-49ed-8e47-9da192516b8f
+          Filters:
+          - CategoryFilter:
+              FilterId: 4ad75607-6d64-4183-8aa9-aef5642c6ca0
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: category
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - performance
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 67979cbb-ca16-4872-b597-f01da711b5ca
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - 9c24360e-30e8-4ca5-9884-862cb0f336f5
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: ada32c10-21af-4d47-a10f-844c3377eabb
+          Filters:
+          - CategoryFilter:
+              FilterId: 2c49701b-2a0c-42a1-961d-d2d1bb0cce45
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: category
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - performance
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 67979cbb-ca16-4872-b597-f01da711b5ca
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - d7ef7363-9392-4089-86af-596501f04045
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: bd511d84-622d-44ce-9bc7-1f96e8b8ee83
+          Filters:
+          - CategoryFilter:
+              FilterId: e6dd89df-048a-4864-b2d5-1efc61322796
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: category
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - performance
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 67979cbb-ca16-4872-b597-f01da711b5ca
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - 32ae51ff-4eb1-42aa-b7b7-54ef58c7b59f
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: b5a329e4-1e6a-4423-93e0-b9fde95a30b1
+          Filters:
+          - CategoryFilter:
+              FilterId: 74cb5330-07de-4e63-88b3-a83cd34da9e0
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: category
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - performance
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 67979cbb-ca16-4872-b597-f01da711b5ca
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - eaca3c68-64ba-4981-b8f8-93a8914f4c09
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: dadd62c5-be72-4398-b791-532bd7a224a1
+          Filters:
+          - CategoryFilter:
+              FilterId: 200e9739-881d-4c73-8cc1-ef244809a20e
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: accountName
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  SelectAllOptions: FILTER_ALL_VALUES
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 67979cbb-ca16-4872-b597-f01da711b5ca
+                Scope: ALL_VISUALS
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: f51af1f3-3aea-436f-84b2-c23976785b69
+          Filters:
+          - CategoryFilter:
+              FilterId: 25072b13-c54c-45be-8d22-bc79a5e05198
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: category
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - operational_excellence
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 06f4694a-4f81-4480-974e-5ab071795307
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - 61f64ed0-e282-414a-93d3-112440c65b3b
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: cb5d0c51-9f09-4cee-b8b9-c334ee7079f2
+          Filters:
+          - CategoryFilter:
+              FilterId: c4d92254-7374-4f6c-b0b2-df3ebe4be190
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: category
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - operational_excellence
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 06f4694a-4f81-4480-974e-5ab071795307
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - e7fbe288-3cd1-45be-bbd9-29222f48451e
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: de82c6be-8014-416a-8c68-1f0cef16c0cb
+          Filters:
+          - CategoryFilter:
+              FilterId: 7fd28164-6bcc-487a-9607-698d8b69b2cd
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: category
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - operational_excellence
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 06f4694a-4f81-4480-974e-5ab071795307
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - 90cf98c5-411d-4237-aea5-78071c18c8ed
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: 71c56599-c636-405d-bbe3-2c60665226a9
+          Filters:
+          - CategoryFilter:
+              FilterId: 11acce76-a3b5-4192-98b4-b7a98b2d4fdd
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: category
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  CategoryValues:
+                  - operational_excellence
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 06f4694a-4f81-4480-974e-5ab071795307
+                Scope: SELECTED_VISUALS
+                VisualIds:
+                - 4f28e04e-9b8a-466a-95f2-aacc9504f9a5
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        - FilterGroupId: 129c6af1-6bd7-4d7e-bf27-dd15c950f39d
+          Filters:
+          - CategoryFilter:
+              FilterId: 7ae91da8-748c-473a-b95c-db9577a4f791
+              Column:
+                DataSetIdentifier:  !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: accountName
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  SelectAllOptions: FILTER_ALL_VALUES
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 06f4694a-4f81-4480-974e-5ab071795307
+                Scope: ALL_VISUALS
+          Status: ENABLED
+          CrossDataset: SINGLE_DATASET
+        AnalysisDefaults:
+          DefaultNewSheetConfiguration:
+            InteractiveLayoutConfiguration:
+              Grid:
+                CanvasSizeOptions:
+                  ScreenCanvasSizeOptions:
+                    ResizeOption: FIXED
+                    OptimizedViewPortWidth: 1600px
+            SheetContentType: INTERACTIVE
+      Permissions:
+      - Principal: !Sub "${QuickSightAnalysisAuthor}"
+        Actions:
+          - quicksight:RestoreAnalysis
+          - quicksight:UpdateAnalysisPermissions
+          - quicksight:DeleteAnalysis
+          - quicksight:QueryAnalysis
+          - quicksight:DescribeAnalysisPermissions
+          - quicksight:DescribeAnalysis
+          - quicksight:UpdateAnalysis

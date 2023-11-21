@@ -1,0 +1,53 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: TAModule Data Collection Setup
+
+Parameters:
+  DataCollectionAccountID:
+    Type: String
+    Description: AccountId of where the collector is deployed
+  DataCollectionRegion:
+    Type: String
+    Description: Account Region of where the collector is deployed
+  ResourcePrefix:
+    Type: String
+    Description: This prefix will be placed in front of resources created where required. Note you may wish to add a dash at the end to make more readable
+    Default: "Heidi-"
+    
+Resources:
+  DataCollectionRuleRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Action: sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: !Sub "TrustedAdvisorEventPutEvent-${AWS::AccountId}-${AWS::Region}-Policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: "events:PutEvents"
+                Resource: 
+                  - !Sub "arn:${AWS::Partition}:events:${DataCollectionRegion}:${DataCollectionAccountID}:event-bus/${ResourcePrefix}DataCollectionBus-${DataCollectionAccountID}"
+
+  DefaultBusRuleTrustedAdvisor:
+    Type: "AWS::Events::Rule"
+    Properties:
+      Description: "EventBridge default rule for aws.TrustedAdvisor events"
+      EventBusName: "default"
+      EventPattern:
+        source:
+          - "aws.trustedadvisor"
+          - "heidi.trustedadvisor"
+        detail-type:
+          - "Trusted Advisor Check Item Refresh Notification"
+      Targets:
+        - Arn: !Sub "arn:${AWS::Partition}:events:${DataCollectionRegion}:${DataCollectionAccountID}:event-bus/${ResourcePrefix}DataCollectionBus-${DataCollectionAccountID}"
+          Id: DataCollectionRuleOnDefaultBus
+          RoleArn: !GetAtt  DataCollectionRuleRole.Arn

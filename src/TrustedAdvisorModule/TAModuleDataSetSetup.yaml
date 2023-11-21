@@ -1,0 +1,277 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: TAModule QS Data Setup
+
+Parameters:
+  DataCollectionBucket:
+    Type: String
+    Description: Name of the S3 Bucket to be created to hold data information
+  QuickSightAnalysisAuthor:
+    Type: String
+    Description: The QuickSight analysis author Arn that is allowed configure and manage the QS Analyses and dashboards. e.g. arn:aws:quicksight:<Region>:<AccountID>:user/default/<username>
+  HeidiDataCollectionDB:
+    Type: String
+    Description: Athena DataCollection DB
+    Default: "heididatacollectiondb"
+  HeidiQSDataSourceArn:
+    Type: String
+    Description: Quick Sight Datasource Arn.
+
+Resources:
+  GlueTARefOds:
+    Type: AWS::Glue::Table
+    Properties:
+      DatabaseName: !Ref HeidiDataCollectionDB
+      CatalogId: !Sub '${AWS::AccountId}'
+      TableInput:
+        Name: tacheckinfo
+        Description: AWS Trusted Advisor Metadata
+        TableType: EXTERNAL_TABLE
+        StorageDescriptor:
+          Columns:
+            - { Name: id, Type: string, Comment: 'from deserializer' }
+            - { Name: name, Type: string, Comment: 'from deserializer' }
+            - { Name: description, Type: string, Comment: 'from deserializer' }
+            - { Name: category, Type: string, Comment: 'from deserializer' }
+            - { Name: metadata, Type: array<string>, Comment: 'from deserializer' }
+          Location: !Sub 's3://${DataCollectionBucket}/DataCollection-metadata/ReferenceOds/TAChecksInfo'
+          InputFormat: org.apache.hadoop.mapred.TextInputFormat
+          OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+          SerdeInfo:
+            SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+            Parameters:
+              columns: "category,description,id,metadata,name"
+        PartitionKeys: []
+
+  GlueTrustedAdvisorTable:
+  # AWS Glue Table resource representing  AWS TAChecks External Table
+    Type: AWS::Glue::Table
+    Properties:
+      # Reference to the AWS Glue Database
+      DatabaseName: !Ref HeidiDataCollectionDB
+      CatalogId: !Sub '${AWS::AccountId}'
+      TableInput:
+        Name: tacheckevents
+        Description: AWS Trusted Advisor Data
+        Owner: GlueTeam
+        PartitionKeys:
+          - Name: date_created
+            Type: string
+          - Name: source_partition 
+            Type: string
+        Parameters:
+          EXTERNAL: 'TRUE'  # 'EXTERNAL' should be a string
+          projection.enabled: 'true'
+          projection.date_created.type: 'date'
+          projection.date_created.format: 'yyyy/MM/dd'
+          projection.date_created.interval: '1'
+          projection.date_created.interval.unit: 'DAYS'
+          projection.date_created.range: '2021/01/01,NOW'
+          projection.source_partition.type: 'enum'
+          projection.source_partition.values: 'heidi.trustedadvisor,aws.trustedadvisor,'
+          storage.location.template: !Join ['', ['s3://', !Ref DataCollectionBucket, '/DataCollection-data/${source_partition}/${date_created}/']]
+        StorageDescriptor:
+          # Columns and their data types for the table
+          Columns:
+            - Name: version
+              Type: string
+              Comment: 'from deserializer'
+            - Name: id
+              Type: string
+              Comment: 'from deserializer'
+            - Name: detail-type
+              Type: string
+              Comment: 'from deserializer'
+            - Name: source
+              Type: string
+              Comment: 'from deserializer'
+            - Name: account
+              Type: string
+              Comment: 'from deserializer'
+            - Name: time
+              Type: string
+              Comment: 'from deserializer'
+            - Name: region
+              Type: string
+              Comment: 'from deserializer'
+            - Name: resources
+              Type: array<string>
+              Comment: 'from deserializer'
+            - Name: detail
+              Type: array<string>
+              Comment: 'from deserializer'
+          # S3 location of the data for the Athena External Table
+          Location: !Sub 's3://${DataCollectionBucket}/DataCollection-data'
+          InputFormat: 'org.apache.hadoop.mapred.TextInputFormat'
+          OutputFormat: 'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
+          SerdeInfo:
+            SerializationLibrary: 'org.openx.data.jsonserde.JsonSerDe'
+            Parameters:
+              paths: 'account,detail,detail-type,id,region,resources,source,time,version'
+          Compressed: false
+        TableType: EXTERNAL_TABLE
+        Retention: 30
+
+  QSDataSetTACheckEvents:
+  # Create an AWS QuickSight DataSet for AWS TAChecks events
+      Type: AWS::QuickSight::DataSet
+      Properties:
+        AwsAccountId: !Sub ${AWS::AccountId}
+        ImportMode: SPICE
+        DataSetId: !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+        Name: !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+        PhysicalTableMap:
+          TACheckQSPT:
+            CustomSql:
+              DataSourceArn: !Ref HeidiQSDataSourceArn
+              Name: !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+              SqlQuery: |-
+                  WITH updated_tachecks AS (
+                  SELECT 
+                      account,
+                      CAST(from_iso8601_timestamp("time") AS timestamp) as ingestionTime,
+                      CAST(json_parse(REPLACE(REPLACE(REPLACE(detail[1], ' ', ''), 'check-', 'check'), '-detail', 'detail')) AS JSON) AS detail_map
+                  FROM "AwsDataCatalog"."heididatacollectiondb"."tacheckevents"
+                  ),
+                  updated_tacheckinfo AS ( 
+                  SELECT 
+                      *, CAST(REPLACE(name, ' ', '') AS VARCHAR) AS checkname 
+                  FROM "AwsDataCatalog"."heididatacollectiondb"."tacheckinfo" ),
+                  checks AS (
+                  SELECT
+                    account,
+                    ingestionTime,
+                    COALESCE(accountinfo."name", "account") AS accountName, accountinfo.Tag as accountTag,
+                    json_extract_scalar(detail_map, '$.checkname') AS checkname,
+                    json_extract_scalar(detail_map, '$.resource_id') AS resourceId,
+                    json_extract_scalar(detail_map, '$.checkitemdetail.region') AS Region,
+                    json_extract_scalar(detail_map, '$.status') AS status,
+                    json_extract_scalar(detail_map, '$.checkitemdetail.service') AS service,
+                    json_extract_scalar(detail_map, '$.checkitemdetail.limitname') AS limitname,
+                    json_extract_scalar(detail_map, '$.checkitemdetail.limitamount') AS limitamount,
+                    CASE
+                      WHEN json_extract_scalar(detail_map, '$.checkitemdetail.currentusage') = 'null'
+                      THEN '0'
+                      ELSE json_extract_scalar(detail_map, '$.checkitemdetail.currentusage')
+                    END AS currentusage,
+                    json_extract_scalar(detail_map, '$.checkitemdetail.FunctionARN') AS FunctionARN,
+                    json_extract_scalar(detail_map, '$.checkitemdetail.Runtime') AS Runtime,
+                    json_extract_scalar(detail_map, '$.checkitemdetail.DaystoDeprecation') AS DaystoDeprecation,
+                    json_extract_scalar(detail_map, '$.checkitemdetail.DeprecationDate') AS DeprecationDate,
+                    json_extract_scalar(detail_map, '$.checkitemdetail.AverageDailyInvokes') AS AverageDailyInvokes, 
+                    json_extract_scalar(detail_map, '$.checkitemdetail.reason') AS Reason,
+                    json_extract_scalar(detail_map, '$.checkitemdetail.EstimatedMonthlySavings') AS EstimatedMonthlySavings 
+                  FROM updated_tachecks LEFT JOIN "AwsDataCatalog"."heididatacollectiondb"."accountsinfo" accountinfo ON account = accountinfo."accountid")
+                  SELECT * from (SELECT 
+                    rank() OVER (PARTITION BY account,checks.Region,checks.checkname,checks.limitname,checks.FunctionARN,checks.Runtime,checks.resourceId ORDER BY ingestionTime DESC) AS rowrank,
+                    checks.*,
+                    updated_tacheckinfo.category
+                  FROM checks LEFT JOIN updated_tacheckinfo ON checks.checkname = updated_tacheckinfo.checkname) where rowrank =1
+              Columns:
+              - Name: rowrank
+                Type: INTEGER
+              - Name: account
+                Type: STRING
+              - Name: ingestionTime
+                Type: DATETIME
+              - Name: accountName
+                Type: STRING
+              - Name: accountTag
+                Type: STRING
+              - Name: checkname
+                Type: STRING
+              - Name: resourceId
+                Type: STRING
+              - Name: Region
+                Type: STRING
+              - Name: status
+                Type: STRING
+              - Name: service
+                Type: STRING
+              - Name: limitname
+                Type: STRING
+              - Name: limitamount
+                Type: INTEGER
+              - Name: currentusage
+                Type: INTEGER
+              - Name: FunctionARN
+                Type: STRING
+              - Name: Runtime
+                Type: STRING
+              - Name: DaystoDeprecation
+                Type: STRING
+              - Name: DeprecationDate
+                Type: STRING
+              - Name: AverageDailyInvokes
+                Type: STRING
+              - Name: category
+                Type: STRING
+              - Name: Reason
+                Type: STRING
+              - Name: EstimatedMonthlySavings
+                Type: STRING
+        LogicalTableMap:
+          TACheckQSLT:
+            Alias: !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+            DataTransforms:
+            - TagColumnOperation:
+                ColumnName: Region
+                Tags:
+                - ColumnGeographicRole: STATE
+            - ProjectOperation:
+                ProjectedColumns:
+                - rowrank
+                - account
+                - ingestionTime
+                - accountName
+                - accountTag
+                - checkname
+                - resourceId
+                - Region
+                - status
+                - service
+                - limitname
+                - limitamount
+                - currentusage
+                - FunctionARN
+                - Runtime
+                - DaystoDeprecation
+                - DeprecationDate
+                - AverageDailyInvokes
+                - category
+                - Reason
+                - EstimatedMonthlySavings
+            Source:
+              PhysicalTableId: TACheckQSPT
+        Permissions:
+        - Principal: !Sub "${QuickSightAnalysisAuthor}"
+          Actions:
+            - quicksight:DescribeDataSet
+            - quicksight:DescribeDataSetPermissions
+            - quicksight:PassDataSet
+            - quicksight:DescribeIngestion
+            - quicksight:ListIngestions
+            - quicksight:UpdateDataSet
+            - quicksight:DeleteDataSet
+            - quicksight:CreateIngestion
+            - quicksight:CancelIngestion
+            - quicksight:UpdateDataSetPermissions
+
+  QSDataSetTACheckEventsRefresh:
+    # Create an AWS QuickSight Refresh Schedule for AWS TAChecks events
+    DependsOn: QSDataSetTACheckEvents
+    Type: AWS::QuickSight::RefreshSchedule
+    Properties: 
+      AwsAccountId: !Sub ${AWS::AccountId}
+      DataSetId: !Sub "TACheckEvents-${AWS::AccountId}-${AWS::Region}"
+      Schedule:
+        RefreshType: FULL_REFRESH
+        ScheduleFrequency:
+          Interval: HOURLY
+        ScheduleId: QSDataSetTACheckEventsRefresh
+
+Outputs:
+  QSDataSetTACheckEvents:
+    Value: !GetAtt QSDataSetTACheckEvents.Arn
+    Export:
+      Name: QSDataSetTACheckEvents

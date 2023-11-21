@@ -1,0 +1,218 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: SupportCase Module QS Data Setup
+
+Parameters:
+  DataCollectionBucket:
+    Type: String
+    Description: Name of the S3 Bucket to be created to hold data information
+  QuickSightAnalysisAuthor:
+      Type: String
+      Description: The QuickSight analysis author Arn that is allowed configure and manage the QS Analyses and dashboards. e.g. arn:aws:quicksight:<Region>:<AccountID>:user/default/<username>
+  HeidiDataCollectionDB:
+    Type: String
+    Description: Athena DataCollection DB
+    Default: "heididatacollectiondb"
+  HeidiQSDataSourceArn:
+    Type: String
+    Description: Quick Sight Datasource Arn.
+
+Resources:  
+  GlueCasesTable:
+  # AWS Glue Table resource representing  AWS Health External Table
+    Type: AWS::Glue::Table
+    Properties:
+      # Reference to the AWS Glue Database
+      DatabaseName: !Ref HeidiDataCollectionDB
+      CatalogId: !Sub '${AWS::AccountId}'
+      TableInput:
+        Name: supportcaseevents
+        Description: 'AWS Support Cases'
+        Owner: GlueTeam
+        PartitionKeys:
+          - Name: date_created
+            Type: string
+          - Name: source_partition 
+            Type: string
+        Parameters:
+          EXTERNAL: 'TRUE'  # 'EXTERNAL' should be a string
+          projection.enabled: 'true'
+          projection.date_created.type: 'date'
+          projection.date_created.format: 'yyyy/MM/dd'
+          projection.date_created.interval: '1'
+          projection.date_created.interval.unit: 'DAYS'
+          projection.date_created.range: '2021/01/01,NOW'
+          projection.source_partition.type: 'enum'
+          projection.source_partition.values: 'heidi.support'
+          storage.location.template: !Join ['', ['s3://', !Ref DataCollectionBucket, '/DataCollection-data/${source_partition}/${date_created}/']]
+        StorageDescriptor:
+          # Columns and their data types for the table
+          Columns:
+            - Name: version
+              Type: string
+              Comment: 'from deserializer'
+            - Name: id
+              Type: string
+              Comment: 'from deserializer'
+            - Name: detail-type
+              Type: string
+              Comment: 'from deserializer'
+            - Name: source
+              Type: string
+              Comment: 'from deserializer'
+            - Name: account
+              Type: string
+              Comment: 'from deserializer'
+            - Name: time
+              Type: string
+              Comment: 'from deserializer'
+            - Name: region
+              Type: string
+              Comment: 'from deserializer'
+            - Name: resources
+              Type: array<string>
+              Comment: 'from deserializer'
+            - Name: detail
+              Type: struct<caseid:string,displayid:string,subject:string,status:string,servicecode:string,categorycode:string,severitycode:string,submittedby:string,timecreated:string,ccemailaddresses:array<string>,language:string,submittedrole:string,LastCommunicationTime:string>
+              Comment: 'from deserializer'
+          # S3 location of the data for the Athena External Table
+          Location: !Sub 's3://${DataCollectionBucket}/DataCollection-data'
+          InputFormat: 'org.apache.hadoop.mapred.TextInputFormat'
+          OutputFormat: 'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
+          SerdeInfo:
+            SerializationLibrary: 'org.openx.data.jsonserde.JsonSerDe'
+            Parameters:
+              paths: 'account,detail,detail-type,id,region,resources,source,time,version'
+          Compressed: false
+        TableType: EXTERNAL_TABLE
+        Retention: 30
+
+  QSDataSetCasesEvent:
+  # Create an AWS QuickSight DataSet for AWS Health events
+      Type: AWS::QuickSight::DataSet
+      Properties:
+        AwsAccountId: !Sub ${AWS::AccountId}
+        ImportMode: SPICE
+        DataSetId: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
+        Name: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
+        PhysicalTableMap:
+          "AWSSupportCaseQSPT":
+            CustomSql:
+              DataSourceArn: !Ref HeidiQSDataSourceArn
+              Name: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
+              SqlQuery: |-
+                WITH latestRow AS (select * from (SELECT detail.caseId,
+                  account,
+                  rank() OVER (PARTITION BY detail.caseId ORDER BY Time DESC) AS rowrank,
+                  detail.submittedBy,
+                  detail.serviceCode,
+                  detail.subject,
+                  detail.language,
+                  detail.categoryCode,
+                  CAST(from_iso8601_timestamp("time") AS timestamp) as ingestionTime,
+                  CAST(from_iso8601_timestamp(detail.timeCreated) AS timestamp) timeCreated,
+                  detail.severityCode,
+                  CASE WHEN detail.status IN ('resolved', 'closed') THEN CAST(from_iso8601_timestamp(detail.LastCommunicationTime) AS timestamp) ELSE NULL END AS resolveTime,
+                  CAST(from_iso8601_timestamp(detail.LastCommunicationTime) AS timestamp) as LastUpdateTime,
+                  detail.displayId,
+                  detail.submittedRole,
+                  detail.ccEmailAddresses,
+                  detail.status
+                FROM "AwsDataCatalog"."heididatacollectiondb"."supportcaseevents")
+                WHERE rowrank = 1)
+                SELECT detail.*, COALESCE(accountinfo."name", account) AS accountName, accountinfo.Tag as accountTag
+                FROM latestRow detail
+                LEFT JOIN "AwsDataCatalog"."heididatacollectiondb"."accountsinfo" accountinfo ON detail.account = accountinfo."accountid"
+              Columns:
+              - Name: submittedBy
+                Type: STRING
+              - Name: serviceCode
+                Type: STRING
+              - Name: subject
+                Type: STRING
+              - Name: language
+                Type: STRING
+              - Name: categoryCode
+                Type: STRING
+              - Name: ingestionTime
+                Type: DATETIME
+              - Name: caseId
+                Type: STRING
+              - Name: timeCreated
+                Type: DATETIME
+              - Name: severityCode
+                Type: STRING
+              - Name: resolveTime
+                Type: DATETIME
+              - Name: LastUpdateTime
+                Type: DATETIME
+              - Name: displayId
+                Type: STRING
+              - Name: submittedRole
+                Type: STRING
+              - Name: account
+                Type: STRING
+              - Name: accountName
+                Type: STRING
+              - Name: ccEmailAddresses
+                Type: STRING
+              - Name: accountTag
+                Type: STRING
+              - Name: status
+                Type: STRING
+        LogicalTableMap:
+          AWSSupportCaseQSLT:
+            Alias: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
+            DataTransforms:
+            - ProjectOperation:
+                ProjectedColumns:
+                - submittedBy
+                - serviceCode
+                - subject
+                - language
+                - categoryCode
+                - ingestionTime
+                - caseId
+                - timeCreated
+                - severityCode
+                - resolveTime
+                - LastUpdateTime
+                - displayId
+                - submittedRole
+                - account
+                - accountName
+                - ccEmailAddresses
+                - accountTag
+                - status
+            Source:
+              PhysicalTableId: AWSSupportCaseQSPT
+        Permissions:
+        - Principal: !Sub "${QuickSightAnalysisAuthor}"
+          Actions:
+            - quicksight:DescribeDataSet
+            - quicksight:DescribeDataSetPermissions
+            - quicksight:PassDataSet
+            - quicksight:DescribeIngestion
+            - quicksight:ListIngestions
+            - quicksight:UpdateDataSet
+            - quicksight:DeleteDataSet
+            - quicksight:CreateIngestion
+            - quicksight:CancelIngestion
+            - quicksight:UpdateDataSetPermissions
+  QSDataSetAWSSupportCaseRefresh:
+    # Create an AWS QuickSight Refresh Schedule for Support Case events
+    DependsOn: QSDataSetCasesEvent
+    Type: AWS::QuickSight::RefreshSchedule
+    Properties: 
+      AwsAccountId: !Sub ${AWS::AccountId}
+      DataSetId: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
+      Schedule:
+        RefreshType: FULL_REFRESH
+        ScheduleFrequency:
+          Interval: HOURLY
+        ScheduleId: QSDataSetAWSSupportCaseRefresh
+Outputs:
+  QSDataSetCasesEvent:
+    Value: !GetAtt QSDataSetCasesEvent.Arn
+    Export:
+      Name: QSDataSetCasesEvent

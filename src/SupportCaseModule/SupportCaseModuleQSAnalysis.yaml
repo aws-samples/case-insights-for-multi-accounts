@@ -1,23 +1,25 @@
 AWSTemplateFormatVersion: '2010-09-09'
+Description: SupportCase Module QS Analysis Setup
+
 Parameters:
-  CimaQSDataSetArn:
+  QSDataSetCasesEvent:
     Type: String
     Description: The AWS Health Event QSDataSetArn for Analysis.
-  QuickSightUser:
+  QuickSightAnalysisAuthor:
     Type: String
     Description: The QuickSight User that is allowed configure and manage the QS dashboard.
 
 Resources:
-  CimaEventAnalysis:
+  SupportCaseAnalysis:
     Type: AWS::QuickSight::Analysis
     Properties:
       AwsAccountId: !Sub "${AWS::AccountId}"
-      Name: !Sub "Cima-Analysis-${AWS::AccountId}"
-      AnalysisId: !Sub "cfn-integration-Cima-Analysis-${AWS::AccountId}"
+      Name: !Sub "SupportCase-Analysis-${AWS::AccountId}"
+      AnalysisId: !Sub "SupportCase-Analysis-${AWS::AccountId}"
       Definition: 
         DataSetIdentifierDeclarations:
-        - Identifier: !Sub "Cima-${AWS::AccountId}"
-          DataSetArn: !Ref CimaQSDataSetArn 
+        - Identifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
+          DataSetArn: !Ref QSDataSetCasesEvent 
         Sheets:
         - SheetId: 95d28580-bc1b-4bae-9cd7-f6a9c207df49
           Title: Case Insights for Multi-accounts (CIMA)
@@ -86,95 +88,65 @@ Resources:
                     FontSize:
                       Relative: MEDIUM
               Type: MULTI_SELECT
+          - Dropdown:
+              FilterControlId: 79f6bd32-4266-48bf-bb0d-a14580736edc
+              Title: accountTag equals
+              SourceFilterId: 5de490dc-5ace-43fe-9bae-b44376c1342a
+              DisplayOptions:
+                SelectAllOptions:
+                  Visibility: VISIBLE
+                TitleOptions:
+                  Visibility: VISIBLE
+                  FontConfiguration: {}
+              Type: MULTI_SELECT
           Visuals:
-          - ComboChartVisual:
-              VisualId: 0a8f9706-876b-491c-b4ff-a2df78c15f9d
+          - TreeMapVisual:
+              VisualId: e3e70e75-bd6b-4557-b094-e92613bb829e
               Title:
                 Visibility: VISIBLE
                 FormatText:
                   RichText: |-
                     <visual-title>
-                      <block align="center">Case Created Overtime (days)</block>
+                      <block align="center">Cases by Service</block>
                     </visual-title>
               Subtitle:
-                Visibility: VISIBLE
+                Visibility: HIDDEN
               ChartConfiguration:
                 FieldWells:
-                  ComboChartAggregatedFieldWells:
-                    Category:
-                    - DateDimensionField:
-                        FieldId: CimaQSLT.timeCreated.2.1689052390292
-                        Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
-                          ColumnName: timeCreated
-                        HierarchyId: CimaQSLT.timeCreated.2.1689052390292
-                    BarValues:
-                    - CategoricalMeasureField:
-                        FieldId: CimaQSLT.severityCode.2.1689052700659
-                        Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
-                          ColumnName: severityCode
-                        AggregationFunction: COUNT
-                    Colors:
+                  TreeMapAggregatedFieldWells:
+                    Groups:
                     - CategoricalDimensionField:
-                        FieldId: CimaQSLT.severityCode.2.1689044768911
+                        FieldId: AWSSupportCaseQSLT.serviceCode.0.1689045606309
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
-                          ColumnName: severityCode
-                    LineValues: []
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: serviceCode
+                    Sizes: []
+                    Colors: []
                 SortConfiguration:
-                  CategorySort:
-                  - FieldSort:
-                      FieldId: CimaQSLT.timeCreated.2.1689052390292
-                      Direction: ASC
-                  CategoryItemsLimit:
+                  TreeMapGroupItemsLimitConfiguration:
                     OtherCategories: INCLUDE
-                  ColorItemsLimit:
-                    OtherCategories: INCLUDE
-                BarsArrangement: STACKED
-                CategoryAxis:
-                  TickLabelOptions:
-                    LabelOptions:
-                      Visibility: VISIBLE
-                    RotationAngle: 0
-                CategoryLabelOptions:
-                  Visibility: VISIBLE
-                  AxisLabelOptions:
-                  - CustomLabel: Create Date
-                    ApplyTo:
-                      FieldId: CimaQSLT.timeCreated.2.1689052390292
-                      Column:
-                        DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
-                        ColumnName: timeCreated
-                PrimaryYAxisDisplayOptions:
-                  TickLabelOptions:
-                    LabelOptions:
-                      FontConfiguration:
-                        FontSize:
-                          Relative: MEDIUM
-                PrimaryYAxisLabelOptions:
-                  AxisLabelOptions:
-                  - CustomLabel: Cases
-                    ApplyTo:
-                      FieldId: CimaQSLT.severityCode.2.1689052700659
-                      Column:
-                        DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
-                        ColumnName: severityCode
-                SecondaryYAxisDisplayOptions:
-                  TickLabelOptions:
-                    LabelOptions:
-                      FontConfiguration:
-                        FontSize:
-                          Relative: LARGE
-                Legend:
-                  Title:
-                    Visibility: VISIBLE
-                  Position: RIGHT
-                BarDataLabels:
+                GroupLabelOptions:
                   Visibility: HIDDEN
+                ColorScale:
+                  Colors:
+                  - Color: "#219FD7"
+                  - {}
+                  ColorFillType: GRADIENT
+                DataLabels:
+                  Visibility: VISIBLE
                   Overlap: DISABLE_OVERLAP
+                Tooltip:
+                  TooltipVisibility: VISIBLE
+                  SelectedTooltipType: BASIC
+                  FieldBasedTooltip:
+                    AggregationVisibility: HIDDEN
+                    TooltipTitleType: PRIMARY_VALUE
+                    TooltipFields:
+                    - FieldTooltipItem:
+                        FieldId: AWSSupportCaseQSLT.serviceCode.0.1689045606309
+                        Visibility: VISIBLE
               Actions:
-              - CustomActionId: 1eea805a-216a-490f-a913-f9dd52a5991b
+              - CustomActionId: 9758b46c-9e76-4dca-ab2b-eb761ad4da0d
                 Name: Action 1
                 Status: ENABLED
                 Trigger: DATA_POINT_CLICK
@@ -185,9 +157,7 @@ Resources:
                     TargetVisualsConfiguration:
                       SameSheetTargetVisualConfiguration:
                         TargetVisualOptions: ALL_VISUALS
-              ColumnHierarchies:
-              - DateTimeHierarchy:
-                  HierarchyId: CimaQSLT.timeCreated.2.1689052390292
+              ColumnHierarchies: []
           - PieChartVisual:
               VisualId: f43808ff-d262-4a9e-b78a-8a3dcd8148e9
               Title:
@@ -204,9 +174,9 @@ Resources:
                   PieChartAggregatedFieldWells:
                     Category:
                     - CategoricalDimensionField:
-                        FieldId: CimaQSLT.status.0.1689049333027
+                        FieldId: AWSSupportCaseQSLT.status.0.1689049333027
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: status
                     Values: []
                 SortConfiguration:
@@ -244,7 +214,7 @@ Resources:
                     TooltipTitleType: PRIMARY_VALUE
                     TooltipFields:
                     - FieldTooltipItem:
-                        FieldId: CimaQSLT.status.0.1689049333027
+                        FieldId: AWSSupportCaseQSLT.status.0.1689049333027
                         Visibility: VISIBLE
               Actions:
               - CustomActionId: defa3b40-cf35-42aa-b23a-38d8c3ed509f
@@ -277,9 +247,9 @@ Resources:
                     Name: TotalAggregate
                     Value:
                       CategoricalMeasureField:
-                        FieldId: CimaQSLT.status.1.1689047821779
+                        FieldId: AWSSupportCaseQSLT.status.1.1689047821779
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: status
                         AggregationFunction: COUNT
                 CustomNarrative:
@@ -303,7 +273,7 @@ Resources:
                     TargetVisualsConfiguration:
                       SameSheetTargetVisualConfiguration:
                         TargetVisualOptions: ALL_VISUALS
-              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+              DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
           - InsightVisual:
               VisualId: 7778bf82-196d-4df2-9f65-3b292c39a903
               Title:
@@ -322,9 +292,9 @@ Resources:
                     Name: TotalAggregate
                     Value:
                       CategoricalMeasureField:
-                        FieldId: CimaQSLT.severityCode.1.1689043738551
+                        FieldId: AWSSupportCaseQSLT.severityCode.1.1689043738551
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: severityCode
                         AggregationFunction: COUNT
                 CustomNarrative:
@@ -348,7 +318,7 @@ Resources:
                     TargetVisualsConfiguration:
                       SameSheetTargetVisualConfiguration:
                         TargetVisualOptions: ALL_VISUALS
-              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+              DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
           - InsightVisual:
               VisualId: 3ae794ed-87a6-4f10-9679-a92605294aa1
               Title:
@@ -367,9 +337,9 @@ Resources:
                     Name: TotalAggregate
                     Value:
                       CategoricalMeasureField:
-                        FieldId: CimaQSLT.severityCode.1.1689043738551
+                        FieldId: AWSSupportCaseQSLT.severityCode.1.1689043738551
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: severityCode
                         AggregationFunction: COUNT
                 CustomNarrative:
@@ -393,7 +363,7 @@ Resources:
                     TargetVisualsConfiguration:
                       SameSheetTargetVisualConfiguration:
                         TargetVisualOptions: ALL_VISUALS
-              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+              DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
           - InsightVisual:
               VisualId: 53633222-baa4-4ed1-b066-e2d14becafa1
               Title:
@@ -412,9 +382,9 @@ Resources:
                     Name: TotalAggregate
                     Value:
                       CategoricalMeasureField:
-                        FieldId: CimaQSLT.severityCode.1.1689043738551
+                        FieldId: AWSSupportCaseQSLT.severityCode.1.1689043738551
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: severityCode
                         AggregationFunction: COUNT
                 CustomNarrative:
@@ -438,7 +408,7 @@ Resources:
                     TargetVisualsConfiguration:
                       SameSheetTargetVisualConfiguration:
                         TargetVisualOptions: ALL_VISUALS
-              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+              DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
           - InsightVisual:
               VisualId: 5879648c-ff4a-47e0-9a5a-52f39ee2cffb
               Title:
@@ -457,9 +427,9 @@ Resources:
                     Name: TotalAggregate
                     Value:
                       CategoricalMeasureField:
-                        FieldId: CimaQSLT.severityCode.1.1689043738551
+                        FieldId: AWSSupportCaseQSLT.severityCode.1.1689043738551
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: severityCode
                         AggregationFunction: COUNT
                 CustomNarrative:
@@ -483,7 +453,7 @@ Resources:
                     TargetVisualsConfiguration:
                       SameSheetTargetVisualConfiguration:
                         TargetVisualOptions: ALL_VISUALS
-              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+              DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
           - InsightVisual:
               VisualId: 3c790584-2609-4ead-ac2f-65c996658ff5
               Title:
@@ -502,9 +472,9 @@ Resources:
                     Name: TotalAggregate
                     Value:
                       CategoricalMeasureField:
-                        FieldId: CimaQSLT.severityCode.1.1689043738551
+                        FieldId: AWSSupportCaseQSLT.severityCode.1.1689043738551
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: severityCode
                         AggregationFunction: COUNT
                 CustomNarrative:
@@ -528,7 +498,7 @@ Resources:
                     TargetVisualsConfiguration:
                       SameSheetTargetVisualConfiguration:
                         TargetVisualOptions: ALL_VISUALS
-              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+              DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
           - TableVisual:
               VisualId: dd0c62a0-365f-4f61-83ba-24bdf5ac3cc1
               Title:
@@ -542,77 +512,77 @@ Resources:
                   TableAggregatedFieldWells:
                     GroupBy:
                     - CategoricalDimensionField:
-                        FieldId: CimaQSLT.displayId.9.1687919427491
+                        FieldId: AWSSupportCaseQSLT.displayId.9.1687919427491
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: displayId
                     - CategoricalDimensionField:
-                        FieldId: CimaQSLT.account.8.1687919371654
+                        FieldId: AWSSupportCaseQSLT.accountName.11.1689045984380
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
-                          ColumnName: account
-                    - CategoricalDimensionField:
-                        FieldId: CimaQSLT.accountName.11.1689045984380
-                        Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: accountName
                     - CategoricalDimensionField:
-                        FieldId: CimaQSLT.serviceCode.2.1687919348335
+                        FieldId: 8ffef6d4-d574-4704-8fad-6fc646ac580b.13.1699819422214
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
-                          ColumnName: serviceCode
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: Severity
                     - CategoricalDimensionField:
-                        FieldId: CimaQSLT.severityCode.3.1687919350921
+                        FieldId: AWSSupportCaseQSLT.status.9.1687919551231
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
-                          ColumnName: severityCode
-                    - CategoricalDimensionField:
-                        FieldId: CimaQSLT.status.9.1687919551231
-                        Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: status
                     - CategoricalDimensionField:
-                        FieldId: CimaQSLT.submittedBy.4.1687919355696
+                        FieldId: AWSSupportCaseQSLT.serviceCode.2.1687919348335
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: serviceCode
+                    - CategoricalDimensionField:
+                        FieldId: AWSSupportCaseQSLT.submittedBy.4.1687919355696
+                        Column:
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: submittedBy
                     - CategoricalDimensionField:
-                        FieldId: CimaQSLT.submittedRole.12.1689050871113
+                        FieldId: AWSSupportCaseQSLT.submittedRole.12.1689050871113
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: submittedRole
                     - CategoricalDimensionField:
-                        FieldId: CimaQSLT.subject.1.1687919336579
+                        FieldId: AWSSupportCaseQSLT.subject.1.1687919336579
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: subject
                     - DateDimensionField:
-                        FieldId: CimaQSLT.timeCreated.5.1687919363247
+                        FieldId: AWSSupportCaseQSLT.timeCreated.5.1687919363247
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: timeCreated
                     - DateDimensionField:
-                        FieldId: CimaQSLT.resolveTime.6.1687919365309
+                        FieldId: AWSSupportCaseQSLT.resolveTime.6.1687919365309
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: resolveTime
                     - NumericalDimensionField:
                         FieldId: b1592567-82d5-422b-bd31-b86898db173c.10.1687920272443
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: DaysToResolve
                     - CategoricalDimensionField:
-                        FieldId: CimaQSLT.categoryCode.7.1687919369041
+                        FieldId: AWSSupportCaseQSLT.categoryCode.7.1687919369041
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: categoryCode
+                    - CategoricalDimensionField:
+                        FieldId: AWSSupportCaseQSLT.accountTag.13.1699816773191
+                        Column:
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: accountTag
                     Values: []
                 SortConfiguration: {}
                 TableOptions:
                   HeaderStyle:
                     HorizontalTextAlignment: AUTO
                     VerticalTextAlignment: MIDDLE
-                    BackgroundColor: "#9FDEF1"
+                    BackgroundColor: "#219FD7"
                   CellStyle:
                     Height: 25
                 TotalOptions:
@@ -620,44 +590,49 @@ Resources:
                   Placement: END
                 FieldOptions:
                   SelectedFieldOptions:
-                  - FieldId: CimaQSLT.displayId.9.1687919427491
+                  - FieldId: AWSSupportCaseQSLT.displayId.9.1687919427491
                     CustomLabel: Case ID
-                  - FieldId: CimaQSLT.account.8.1687919371654
-                    CustomLabel: Account
-                  - FieldId: CimaQSLT.accountName.11.1689045984380
+                  - FieldId: AWSSupportCaseQSLT.accountName.11.1689045984380
                     CustomLabel: Account Name
-                  - FieldId: CimaQSLT.serviceCode.2.1687919348335
-                    CustomLabel: Service
-                  - FieldId: CimaQSLT.severityCode.3.1687919350921
-                    CustomLabel: Severity
-                  - FieldId: CimaQSLT.status.9.1687919551231
+                  - FieldId: AWSSupportCaseQSLT.status.9.1687919551231
                     CustomLabel: Status
-                  - FieldId: CimaQSLT.submittedBy.4.1687919355696
+                  - FieldId: AWSSupportCaseQSLT.serviceCode.2.1687919348335
+                    CustomLabel: Service
+                  - FieldId: AWSSupportCaseQSLT.submittedBy.4.1687919355696
                     CustomLabel: Submitted by
-                  - FieldId: CimaQSLT.subject.1.1687919336579
+                  - FieldId: AWSSupportCaseQSLT.subject.1.1687919336579
                     CustomLabel: Subject
-                  - FieldId: CimaQSLT.timeCreated.5.1687919363247
+                  - FieldId: AWSSupportCaseQSLT.timeCreated.5.1687919363247
                     CustomLabel: Created on
-                  - FieldId: CimaQSLT.resolveTime.6.1687919365309
+                  - FieldId: AWSSupportCaseQSLT.resolveTime.6.1687919365309
                     CustomLabel: Resolved on
                   - FieldId: b1592567-82d5-422b-bd31-b86898db173c.10.1687920272443
                     CustomLabel: Time to resolve (days)
-                  - FieldId: CimaQSLT.categoryCode.7.1687919369041
+                  - FieldId: AWSSupportCaseQSLT.categoryCode.7.1687919369041
                     CustomLabel: Category
                   Order:
-                  - CimaQSLT.displayId.9.1687919427491
-                  - CimaQSLT.account.8.1687919371654
-                  - CimaQSLT.accountName.11.1689045984380
-                  - CimaQSLT.serviceCode.2.1687919348335
-                  - CimaQSLT.severityCode.3.1687919350921
-                  - CimaQSLT.status.9.1687919551231
-                  - CimaQSLT.submittedBy.4.1687919355696
-                  - CimaQSLT.submittedRole.12.1689050871113
-                  - CimaQSLT.subject.1.1687919336579
-                  - CimaQSLT.timeCreated.5.1687919363247
-                  - CimaQSLT.resolveTime.6.1687919365309
+                  - AWSSupportCaseQSLT.displayId.9.1687919427491
+                  - AWSSupportCaseQSLT.accountName.11.1689045984380
+                  - 8ffef6d4-d574-4704-8fad-6fc646ac580b.13.1699819422214
+                  - AWSSupportCaseQSLT.status.9.1687919551231
+                  - AWSSupportCaseQSLT.serviceCode.2.1687919348335
+                  - AWSSupportCaseQSLT.submittedBy.4.1687919355696
+                  - AWSSupportCaseQSLT.submittedRole.12.1689050871113
+                  - AWSSupportCaseQSLT.subject.1.1687919336579
+                  - AWSSupportCaseQSLT.timeCreated.5.1687919363247
+                  - AWSSupportCaseQSLT.resolveTime.6.1687919365309
                   - b1592567-82d5-422b-bd31-b86898db173c.10.1687920272443
-                  - CimaQSLT.categoryCode.7.1687919369041
+                  - AWSSupportCaseQSLT.categoryCode.7.1687919369041
+                  - AWSSupportCaseQSLT.accountTag.13.1699816773191
+              ConditionalFormatting:
+                ConditionalFormattingOptions:
+                - Cell:
+                    FieldId: AWSSupportCaseQSLT.status.9.1687919551231
+                    TextFormat:
+                      BackgroundColor:
+                        Solid:
+                          Expression: locate({status}, "resolved") = 0
+                          Color: "#FF8700"
               Actions:
               - CustomActionId: ad19ca40-a483-4bfc-8c9b-c425c26e48dd
                 Name: Action 1
@@ -688,9 +663,9 @@ Resources:
                     Name: TotalAggregate
                     Value:
                       CategoricalMeasureField:
-                        FieldId: CimaQSLT.severityCode.1.1689043738551
+                        FieldId: AWSSupportCaseQSLT.severityCode.1.1689043738551
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: severityCode
                         AggregationFunction: COUNT
                 CustomNarrative:
@@ -714,7 +689,7 @@ Resources:
                     TargetVisualsConfiguration:
                       SameSheetTargetVisualConfiguration:
                         TargetVisualOptions: ALL_VISUALS
-              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+              DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
           - BarChartVisual:
               VisualId: 90b0e5e2-3aef-45cb-8c72-1f3fe7bee3d5
               Title:
@@ -731,9 +706,9 @@ Resources:
                   BarChartAggregatedFieldWells:
                     Category:
                     - CategoricalDimensionField:
-                        FieldId: CimaQSLT.accountName.0.1689044488355
+                        FieldId: AWSSupportCaseQSLT.accountName.0.1689044488355
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: accountName
                         FormatConfiguration: {}
                     Values: []
@@ -747,6 +722,13 @@ Resources:
                     OtherCategories: INCLUDE
                 Orientation: HORIZONTAL
                 BarsArrangement: CLUSTERED
+                VisualPalette:
+                  ChartColor: "#219FD7"
+                  ColorMap:
+                  - Element:
+                      FieldId: AWSSupportCaseQSLT.accountName.0.1689044488355
+                      FieldValue: ProductionAccount
+                    Color: "#219FD7"
                 ValueAxis:
                   TickLabelOptions:
                     LabelOptions:
@@ -765,7 +747,7 @@ Resources:
                     TooltipTitleType: PRIMARY_VALUE
                     TooltipFields:
                     - FieldTooltipItem:
-                        FieldId: CimaQSLT.accountName.0.1689044488355
+                        FieldId: AWSSupportCaseQSLT.accountName.0.1689044488355
                         Visibility: VISIBLE
               Actions:
               - CustomActionId: 28fd06ab-4039-43a9-a44e-7c76908eae7b
@@ -796,37 +778,33 @@ Resources:
                   ComboChartAggregatedFieldWells:
                     Category:
                     - DateDimensionField:
-                        FieldId: CimaQSLT.timeCreated.2.1689052241259
+                        FieldId: AWSSupportCaseQSLT.timeCreated.2.1689052241259
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: timeCreated
-                        HierarchyId: CimaQSLT.timeCreated.2.1689052241259
+                        HierarchyId: AWSSupportCaseQSLT.timeCreated.2.1689052241259
                     BarValues:
                     - NumericalMeasureField:
                         FieldId: cf67e371-0013-4b9e-85e7-99c7d6384727.2.1689049560639
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: caseAge
                         AggregationFunction:
                           SimpleNumericalAggregation: MAX
                     Colors:
                     - CategoricalDimensionField:
-                        FieldId: CimaQSLT.displayId.2.1689051803435
+                        FieldId: AWSSupportCaseQSLT.displayId.2.1689051803435
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: displayId
                     LineValues: []
                 SortConfiguration:
                   CategorySort:
                   - FieldSort:
-                      FieldId: CimaQSLT.timeCreated.2.1689052241259
+                      FieldId: AWSSupportCaseQSLT.timeCreated.2.1689052241259
                       Direction: ASC
                   CategoryItemsLimit:
                     OtherCategories: INCLUDE
-                  ColorSort:
-                  - FieldSort:
-                      FieldId: CimaQSLT.displayId.2.1689051803435
-                      Direction: DESC
                   ColorItemsLimit:
                     OtherCategories: INCLUDE
                 BarsArrangement: STACKED
@@ -844,9 +822,9 @@ Resources:
                   AxisLabelOptions:
                   - CustomLabel: Create Date
                     ApplyTo:
-                      FieldId: CimaQSLT.timeCreated.2.1689052241259
+                      FieldId: AWSSupportCaseQSLT.timeCreated.2.1689052241259
                       Column:
-                        DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                        DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                         ColumnName: timeCreated
                 PrimaryYAxisDisplayOptions:
                   TickLabelOptions:
@@ -863,7 +841,7 @@ Resources:
                     ApplyTo:
                       FieldId: cf67e371-0013-4b9e-85e7-99c7d6384727.2.1689049560639
                       Column:
-                        DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                        DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                         ColumnName: caseAge
                 SecondaryYAxisDisplayOptions:
                   TickLabelOptions:
@@ -879,8 +857,26 @@ Resources:
                 BarDataLabels:
                   Visibility: HIDDEN
                   Overlap: DISABLE_OVERLAP
+                LineDataLabels:
+                  Overlap: DISABLE_OVERLAP
+                Tooltip:
+                  TooltipVisibility: VISIBLE
+                  SelectedTooltipType: BASIC
+                  FieldBasedTooltip:
+                    AggregationVisibility: HIDDEN
+                    TooltipTitleType: PRIMARY_VALUE
+                    TooltipFields:
+                    - FieldTooltipItem:
+                        FieldId: AWSSupportCaseQSLT.timeCreated.2.1689052241259
+                        Visibility: VISIBLE
+                    - FieldTooltipItem:
+                        FieldId: cf67e371-0013-4b9e-85e7-99c7d6384727.2.1689049560639
+                        Visibility: VISIBLE
+                    - FieldTooltipItem:
+                        FieldId: AWSSupportCaseQSLT.displayId.2.1689051803435
+                        Visibility: VISIBLE
                 VisualPalette:
-                  ChartColor: "#9FDEF1"
+                  ChartColor: "#219FD7"
               Actions:
               - CustomActionId: 8bff60a2-2547-4964-afc9-60307be29e05
                 Name: Action 1
@@ -895,7 +891,8 @@ Resources:
                         TargetVisualOptions: ALL_VISUALS
               ColumnHierarchies:
               - DateTimeHierarchy:
-                  HierarchyId: CimaQSLT.timeCreated.2.1689052241259
+                  HierarchyId: AWSSupportCaseQSLT.timeCreated.2.1689052241259
+                  DrillDownFilters: []
           - PieChartVisual:
               VisualId: d1e68cd0-f39a-4932-8d3f-10aabd516b10
               Title:
@@ -912,10 +909,10 @@ Resources:
                   PieChartAggregatedFieldWells:
                     Category:
                     - CategoricalDimensionField:
-                        FieldId: CimaQSLT.severityCode.0.1689045112372
+                        FieldId: 8ffef6d4-d574-4704-8fad-6fc646ac580b.0.1699817961853
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
-                          ColumnName: severityCode
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: Severity
                     Values: []
                 SortConfiguration:
                   CategoryItemsLimit:
@@ -952,7 +949,7 @@ Resources:
                     TooltipTitleType: PRIMARY_VALUE
                     TooltipFields:
                     - FieldTooltipItem:
-                        FieldId: CimaQSLT.severityCode.0.1689045112372
+                        FieldId: 8ffef6d4-d574-4704-8fad-6fc646ac580b.0.1699817961853
                         Visibility: VISIBLE
               Actions:
               - CustomActionId: acb14346-dcd3-4ab6-9128-65d54db9d2a8
@@ -967,46 +964,41 @@ Resources:
                       SameSheetTargetVisualConfiguration:
                         TargetVisualOptions: ALL_VISUALS
               ColumnHierarchies: []
-          - TreeMapVisual:
+          - SankeyDiagramVisual:
               VisualId: 642adb4a-b049-4b41-8395-1706119a06d8
               Title:
                 Visibility: VISIBLE
                 FormatText:
                   RichText: |-
                     <visual-title>
-                      <block align="center">Cases by Service</block>
+                      <block align="center">Cases by AccountTag vs Services</block>
                     </visual-title>
               Subtitle:
                 Visibility: HIDDEN
               ChartConfiguration:
                 FieldWells:
-                  TreeMapAggregatedFieldWells:
-                    Groups:
+                  SankeyDiagramAggregatedFieldWells:
+                    Source:
                     - CategoricalDimensionField:
-                        FieldId: CimaQSLT.serviceCode.0.1689045606309
+                        FieldId: AWSSupportCaseQSLT.accountTag.0.1699817061299
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
+                          ColumnName: accountTag
+                    Destination:
+                    - CategoricalDimensionField:
+                        FieldId: AWSSupportCaseQSLT.serviceCode.1.1699817109757
+                        Column:
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: serviceCode
-                    Sizes: []
-                    Colors: []
-                SortConfiguration:
-                  TreeMapGroupItemsLimitConfiguration:
-                    OtherCategories: INCLUDE
-                GroupLabelOptions:
-                  Visibility: HIDDEN
+                    Weight: []
+                SortConfiguration: {}
                 DataLabels:
                   Visibility: VISIBLE
+                  Position: RIGHT
+                  LabelFontConfiguration:
+                    FontSize:
+                      Relative: MEDIUM
                   Overlap: DISABLE_OVERLAP
-                Tooltip:
-                  TooltipVisibility: VISIBLE
-                  SelectedTooltipType: BASIC
-                  FieldBasedTooltip:
-                    AggregationVisibility: HIDDEN
-                    TooltipTitleType: PRIMARY_VALUE
-                    TooltipFields:
-                    - FieldTooltipItem:
-                        FieldId: CimaQSLT.serviceCode.0.1689045606309
-                        Visibility: VISIBLE
               Actions:
               - CustomActionId: af1c5b2b-c97e-470a-ae99-fe34a506888d
                 Name: Action 1
@@ -1019,104 +1011,120 @@ Resources:
                     TargetVisualsConfiguration:
                       SameSheetTargetVisualConfiguration:
                         TargetVisualOptions: ALL_VISUALS
-              ColumnHierarchies: []
           Layouts:
           - Configuration:
-              GridLayout:
+              FreeFormLayout:
                 Elements:
                 - ElementId: 757847a5-faf7-4218-bf04-ab39e37fee26
                   ElementType: FILTER_CONTROL
-                  ColumnIndex: 0
-                  ColumnSpan: 7
-                  RowIndex: 0
-                  RowSpan: 3
+                  XAxisLocation: 8px
+                  YAxisLocation: 8px
+                  Width: 302px
+                  Height: 124px
+                  Visibility: VISIBLE
                 - ElementId: 32a4583f-05d8-49c6-a87a-ba32cbee08a0
                   ElementType: VISUAL
-                  ColumnIndex: 7
-                  ColumnSpan: 5
-                  RowIndex: 0
-                  RowSpan: 3
+                  XAxisLocation: 318px
+                  YAxisLocation: 8px
+                  Width: 213px
+                  Height: 124px
+                  Visibility: VISIBLE
                 - ElementId: 2c3503fa-d736-467f-9fca-c25c152fc9de
                   ElementType: VISUAL
-                  ColumnIndex: 12
-                  ColumnSpan: 4
-                  RowIndex: 0
-                  RowSpan: 3
+                  XAxisLocation: 539px
+                  YAxisLocation: 8px
+                  Width: 169px
+                  Height: 124px
+                  Visibility: VISIBLE
                 - ElementId: 3c790584-2609-4ead-ac2f-65c996658ff5
                   ElementType: VISUAL
-                  ColumnIndex: 16
-                  ColumnSpan: 4
-                  RowIndex: 0
-                  RowSpan: 3
+                  XAxisLocation: 716px
+                  YAxisLocation: 8px
+                  Width: 169px
+                  Height: 124px
+                  Visibility: VISIBLE
                 - ElementId: 5879648c-ff4a-47e0-9a5a-52f39ee2cffb
                   ElementType: VISUAL
-                  ColumnIndex: 20
-                  ColumnSpan: 4
-                  RowIndex: 0
-                  RowSpan: 3
+                  XAxisLocation: 892px
+                  YAxisLocation: 8px
+                  Width: 169px
+                  Height: 124px
+                  Visibility: VISIBLE
                 - ElementId: 7778bf82-196d-4df2-9f65-3b292c39a903
                   ElementType: VISUAL
-                  ColumnIndex: 24
-                  ColumnSpan: 4
-                  RowIndex: 0
-                  RowSpan: 3
+                  XAxisLocation: 1069px
+                  YAxisLocation: 8px
+                  Width: 169px
+                  Height: 124px
+                  Visibility: VISIBLE
                 - ElementId: 3ae794ed-87a6-4f10-9679-a92605294aa1
                   ElementType: VISUAL
-                  ColumnIndex: 28
-                  ColumnSpan: 4
-                  RowIndex: 0
-                  RowSpan: 3
+                  XAxisLocation: 1246px
+                  YAxisLocation: 8px
+                  Width: 169px
+                  Height: 124px
+                  Visibility: VISIBLE
                 - ElementId: 53633222-baa4-4ed1-b066-e2d14becafa1
                   ElementType: VISUAL
-                  ColumnIndex: 32
-                  ColumnSpan: 4
-                  RowIndex: 0
-                  RowSpan: 3
-                - ElementId: f43808ff-d262-4a9e-b78a-8a3dcd8148e9
-                  ElementType: VISUAL
-                  ColumnIndex: 0
-                  ColumnSpan: 8
-                  RowIndex: 3
-                  RowSpan: 6
+                  XAxisLocation: 1423px
+                  YAxisLocation: 8px
+                  Width: 169px
+                  Height: 124px
+                  Visibility: VISIBLE
                 - ElementId: 90b0e5e2-3aef-45cb-8c72-1f3fe7bee3d5
                   ElementType: VISUAL
-                  ColumnIndex: 8
-                  ColumnSpan: 9
-                  RowIndex: 3
-                  RowSpan: 12
-                - ElementId: 642adb4a-b049-4b41-8395-1706119a06d8
-                  ElementType: VISUAL
-                  ColumnIndex: 17
-                  ColumnSpan: 19
-                  RowIndex: 3
-                  RowSpan: 12
+                  XAxisLocation: 8px
+                  YAxisLocation: 140px
+                  Width: 390px
+                  Height: 520px
+                  Visibility: VISIBLE
                 - ElementId: d1e68cd0-f39a-4932-8d3f-10aabd516b10
                   ElementType: VISUAL
-                  ColumnIndex: 0
-                  ColumnSpan: 8
-                  RowIndex: 9
-                  RowSpan: 6
+                  XAxisLocation: 406px
+                  YAxisLocation: 140px
+                  Width: 346px
+                  Height: 256px
+                  Visibility: VISIBLE
+                - ElementId: 642adb4a-b049-4b41-8395-1706119a06d8
+                  ElementType: VISUAL
+                  XAxisLocation: 760px
+                  YAxisLocation: 140px
+                  Width: 832px
+                  Height: 520px
+                  Visibility: VISIBLE
+                - ElementId: f43808ff-d262-4a9e-b78a-8a3dcd8148e9
+                  ElementType: VISUAL
+                  XAxisLocation: 406px
+                  YAxisLocation: 404px
+                  Width: 346px
+                  Height: 256px
+                  Visibility: VISIBLE
                 - ElementId: 8be3380a-5745-4b4a-86eb-8eca30fd4671
                   ElementType: VISUAL
-                  ColumnIndex: 0
-                  ColumnSpan: 17
-                  RowIndex: 15
-                  RowSpan: 9
-                - ElementId: 0a8f9706-876b-491c-b4ff-a2df78c15f9d
+                  XAxisLocation: 8px
+                  YAxisLocation: 668px
+                  Width: 744px
+                  Height: 520px
+                  Visibility: VISIBLE
+                  LoadingAnimation:
+                    Visibility: VISIBLE
+                - ElementId: e3e70e75-bd6b-4557-b094-e92613bb829e
                   ElementType: VISUAL
-                  ColumnIndex: 17
-                  ColumnSpan: 19
-                  RowIndex: 15
-                  RowSpan: 9
+                  XAxisLocation: 760px
+                  YAxisLocation: 668px
+                  Width: 832px
+                  Height: 520px
+                  Visibility: VISIBLE
                 - ElementId: dd0c62a0-365f-4f61-83ba-24bdf5ac3cc1
                   ElementType: VISUAL
-                  ColumnIndex: 0
-                  ColumnSpan: 36
-                  RowIndex: 24
-                  RowSpan: 12
+                  XAxisLocation: 8px
+                  YAxisLocation: 1196px
+                  Width: 1584px
+                  Height: 520px
+                  Visibility: VISIBLE
                 CanvasSizeOptions:
                   ScreenCanvasSizeOptions:
-                    ResizeOption: RESPONSIVE
+                    OptimizedViewPortWidth: 1600px
           SheetControlLayouts:
           - Configuration:
               GridLayout:
@@ -1145,6 +1153,10 @@ Resources:
                   ColumnSpan: 2
                   RowIndex: 0
                   RowSpan: 1
+                - ElementId: 79f6bd32-4266-48bf-bb0d-a14580736edc
+                  ElementType: FILTER_CONTROL
+                  ColumnSpan: 2
+                  RowSpan: 1
           ContentType: INTERACTIVE
         - SheetId: b36011b3-91fe-43b4-8f37-1296799e7fd2
           Name: Insights
@@ -1164,21 +1176,21 @@ Resources:
                     Name: Top
                     Category:
                       CategoricalDimensionField:
-                        FieldId: CimaQSLT.status.1.1687923388567
+                        FieldId: AWSSupportCaseQSLT.status.1.1687923388567
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: status
                     Value:
                       CategoricalMeasureField:
-                        FieldId: CimaQSLT.caseId.1.1687923319006
+                        FieldId: AWSSupportCaseQSLT.caseId.1.1687923319006
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: caseId
                         AggregationFunction: COUNT
                     ResultSize: 3
                     Type: TOP
               Actions: []
-              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+              DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
           - InsightVisual:
               VisualId: d9cf8a1a-3af6-46b9-9a2c-470aa9d1496e
               Title:
@@ -1194,21 +1206,21 @@ Resources:
                     Name: Top
                     Category:
                       CategoricalDimensionField:
-                        FieldId: CimaQSLT.account.0.1687923314165
+                        FieldId: AWSSupportCaseQSLT.account.0.1687923314165
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: account
                     Value:
                       CategoricalMeasureField:
-                        FieldId: CimaQSLT.caseId.1.1687923319006
+                        FieldId: AWSSupportCaseQSLT.caseId.1.1687923319006
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: caseId
                         AggregationFunction: COUNT
                     ResultSize: 3
                     Type: TOP
               Actions: []
-              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+              DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
           - InsightVisual:
               VisualId: 6e511039-3356-4e33-bb70-e5633d7b5ca7
               Title:
@@ -1224,21 +1236,21 @@ Resources:
                     Name: Top
                     Category:
                       CategoricalDimensionField:
-                        FieldId: CimaQSLT.severityCode.1.1687923374182
+                        FieldId: AWSSupportCaseQSLT.severityCode.1.1687923374182
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: severityCode
                     Value:
                       CategoricalMeasureField:
-                        FieldId: CimaQSLT.caseId.1.1687923319006
+                        FieldId: AWSSupportCaseQSLT.caseId.1.1687923319006
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: caseId
                         AggregationFunction: COUNT
                     ResultSize: 3
                     Type: TOP
               Actions: []
-              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+              DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
           - InsightVisual:
               VisualId: ad325f4c-b1f1-486f-87ee-78644c42ae3b
               Title:
@@ -1256,19 +1268,19 @@ Resources:
                       NumericalDimensionField:
                         FieldId: b1592567-82d5-422b-bd31-b86898db173c.2.1687923355437
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: DaysToResolve
                     Value:
                       CategoricalMeasureField:
-                        FieldId: CimaQSLT.caseId.1.1687923319006
+                        FieldId: AWSSupportCaseQSLT.caseId.1.1687923319006
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: caseId
                         AggregationFunction: COUNT
                     ResultSize: 3
                     Type: TOP
               Actions: []
-              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+              DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
           - InsightVisual:
               VisualId: b2d568d9-1254-4c94-83d0-ea1b199506fd
               Title:
@@ -1284,21 +1296,21 @@ Resources:
                     Name: Bottom
                     Category:
                       CategoricalDimensionField:
-                        FieldId: CimaQSLT.status.0.1687921759500
+                        FieldId: AWSSupportCaseQSLT.status.0.1687921759500
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: status
                     Value:
                       CategoricalMeasureField:
-                        FieldId: CimaQSLT.caseId.1.1687921762839
+                        FieldId: AWSSupportCaseQSLT.caseId.1.1687921762839
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: caseId
                         AggregationFunction: COUNT
                     ResultSize: 3
                     Type: BOTTOM
               Actions: []
-              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+              DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
           - InsightVisual:
               VisualId: e7e6aea8-1ec9-495e-bad4-e555c752ac17
               Title:
@@ -1314,21 +1326,21 @@ Resources:
                     Name: Bottom
                     Category:
                       CategoricalDimensionField:
-                        FieldId: CimaQSLT.serviceCode.0.1687921732520
+                        FieldId: AWSSupportCaseQSLT.serviceCode.0.1687921732520
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: serviceCode
                     Value:
                       CategoricalMeasureField:
-                        FieldId: CimaQSLT.caseId.1.1687921734783
+                        FieldId: AWSSupportCaseQSLT.caseId.1.1687921734783
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: caseId
                         AggregationFunction: COUNT
                     ResultSize: 3
                     Type: BOTTOM
               Actions: []
-              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+              DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
           - InsightVisual:
               VisualId: 8e7613d0-225c-4b14-a485-04b38da5ec14
               Title:
@@ -1344,21 +1356,21 @@ Resources:
                     Name: Bottom
                     Category:
                       CategoricalDimensionField:
-                        FieldId: CimaQSLT.severityCode.0.1687921716506
+                        FieldId: AWSSupportCaseQSLT.severityCode.0.1687921716506
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: severityCode
                     Value:
                       CategoricalMeasureField:
-                        FieldId: CimaQSLT.caseId.1.1687921718650
+                        FieldId: AWSSupportCaseQSLT.caseId.1.1687921718650
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: caseId
                         AggregationFunction: COUNT
                     ResultSize: 3
                     Type: BOTTOM
               Actions: []
-              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+              DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
           - InsightVisual:
               VisualId: 034daf85-38ac-4927-a4cf-9cb743f37226
               Title:
@@ -1376,19 +1388,19 @@ Resources:
                       NumericalDimensionField:
                         FieldId: b1592567-82d5-422b-bd31-b86898db173c.0.1687921698791
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: DaysToResolve
                     Value:
                       CategoricalMeasureField:
-                        FieldId: CimaQSLT.caseId.1.1687921703138
+                        FieldId: AWSSupportCaseQSLT.caseId.1.1687921703138
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: caseId
                         AggregationFunction: COUNT
                     ResultSize: 3
                     Type: BOTTOM
               Actions: []
-              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+              DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
           - InsightVisual:
               VisualId: 4bfd47d5-57b4-4f53-b532-f980132c2e5b
               Title:
@@ -1404,21 +1416,21 @@ Resources:
                     Name: Bottom
                     Category:
                       CategoricalDimensionField:
-                        FieldId: CimaQSLT.account.0.1687921682395
+                        FieldId: AWSSupportCaseQSLT.account.0.1687921682395
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: account
                     Value:
                       CategoricalMeasureField:
-                        FieldId: CimaQSLT.caseId.1.1687921687973
+                        FieldId: AWSSupportCaseQSLT.caseId.1.1687921687973
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: caseId
                         AggregationFunction: COUNT
                     ResultSize: 3
                     Type: BOTTOM
               Actions: []
-              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+              DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
           - InsightVisual:
               VisualId: a1cf4804-cd85-4bd0-ae75-b8dc70aefe5c
               Title:
@@ -1434,21 +1446,21 @@ Resources:
                     Name: Top
                     Category:
                       CategoricalDimensionField:
-                        FieldId: CimaQSLT.account.0.1687923314165
+                        FieldId: AWSSupportCaseQSLT.account.0.1687923314165
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: account
                     Value:
                       CategoricalMeasureField:
-                        FieldId: CimaQSLT.caseId.1.1687923319006
+                        FieldId: AWSSupportCaseQSLT.caseId.1.1687923319006
                         Column:
-                          DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                          DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                           ColumnName: caseId
                         AggregationFunction: COUNT
                     ResultSize: 3
                     Type: TOP
               Actions: []
-              DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+              DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
           Layouts:
           - Configuration:
               GridLayout:
@@ -1518,10 +1530,15 @@ Resources:
                     ResizeOption: RESPONSIVE
           ContentType: INTERACTIVE
         CalculatedFields:
-        - DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+        - DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
           Name: DaysToResolve
           Expression: dateDiff(timeCreated, resolveTime,"DD")
-        - DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+        - DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
+          Name: Severity
+          Expression: ifelse(severityCode="low","General Guidence",severityCode="normal","System
+            Impaired",severityCode="high","Prod. System Impaired",severityCode="critical","Prod.
+            System Down",severityCode="urgent","Business Critical", "Others")
+        - DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
           Name: caseAge
           Expression: dateDiff(timeCreated,now(),'DD')
         ParameterDeclarations: []
@@ -1531,7 +1548,7 @@ Resources:
           - CategoryFilter:
               FilterId: 0ec99f49-5caa-4df3-a5e4-0e0fd4dc53ba
               Column:
-                DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                 ColumnName: account
               Configuration:
                 FilterListConfiguration:
@@ -1549,7 +1566,7 @@ Resources:
           - CategoryFilter:
               FilterId: a6649615-e2be-4f9b-ad0b-8022795d2c5d
               Column:
-                DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                 ColumnName: severityCode
               Configuration:
                 FilterListConfiguration:
@@ -1567,7 +1584,7 @@ Resources:
           - CategoryFilter:
               FilterId: d1e2cbed-0320-451e-a7d9-906d4bcbbed4
               Column:
-                DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                 ColumnName: serviceCode
               Configuration:
                 FilterListConfiguration:
@@ -1585,7 +1602,7 @@ Resources:
           - CategoryFilter:
               FilterId: b4cbf505-6863-46b6-927b-156f2e67288f
               Column:
-                DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                 ColumnName: submittedBy
               Configuration:
                 FilterListConfiguration:
@@ -1603,14 +1620,13 @@ Resources:
           - RelativeDatesFilter:
               FilterId: 5c93d8a7-d8eb-4a01-a4e9-3640082d19da
               Column:
-                DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                 ColumnName: timeCreated
               AnchorDateConfiguration:
                 AnchorOption: NOW
               MinimumGranularity: DAY
               TimeGranularity: YEAR
-              RelativeDateType: LAST
-              RelativeDateValue: 3
+              RelativeDateType: THIS
               NullOption: NON_NULLS_ONLY
               ExcludePeriodConfiguration:
                 Amount: 1
@@ -1628,7 +1644,7 @@ Resources:
           - CategoryFilter:
               FilterId: 305ff691-4d3b-42b2-ac62-2678bddc7f4f
               Column:
-                DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                 ColumnName: severityCode
               Configuration:
                 FilterListConfiguration:
@@ -1649,7 +1665,7 @@ Resources:
           - CategoryFilter:
               FilterId: ebda1961-71a0-4eb7-adc1-068ccdf3a2ff
               Column:
-                DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                 ColumnName: severityCode
               Configuration:
                 FilterListConfiguration:
@@ -1670,7 +1686,7 @@ Resources:
           - CategoryFilter:
               FilterId: b521ff00-9dbf-4af0-87cc-f264a9ea940c
               Column:
-                DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                 ColumnName: severityCode
               Configuration:
                 FilterListConfiguration:
@@ -1691,7 +1707,7 @@ Resources:
           - CategoryFilter:
               FilterId: 78743881-27ff-4b06-8d99-4a8b5aea8fab
               Column:
-                DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                 ColumnName: severityCode
               Configuration:
                 FilterListConfiguration:
@@ -1712,7 +1728,7 @@ Resources:
           - CategoryFilter:
               FilterId: ad77b612-f17b-40ed-8c52-95224bce7118
               Column:
-                DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                 ColumnName: severityCode
               Configuration:
                 FilterListConfiguration:
@@ -1733,7 +1749,7 @@ Resources:
           - CategoryFilter:
               FilterId: a542ecf3-f38a-4bee-b5da-136d7debf23a
               Column:
-                DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                 ColumnName: status
               Configuration:
                 FilterListConfiguration:
@@ -1754,7 +1770,7 @@ Resources:
           - CategoryFilter:
               FilterId: 5f6437d5-0e42-451a-8797-b6458eb7bac1
               Column:
-                DataSetIdentifier: !Sub "Cima-${AWS::AccountId}"
+                DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
                 ColumnName: status
               Configuration:
                 FilterListConfiguration:
@@ -1770,6 +1786,24 @@ Resources:
                 - 8be3380a-5745-4b4a-86eb-8eca30fd4671
           Status: ENABLED
           CrossDataset: SINGLE_DATASET
+        - FilterGroupId: 3c9d5dbe-66cb-412e-926b-66ef1caffbcb
+          Filters:
+          - CategoryFilter:
+              FilterId: 5de490dc-5ace-43fe-9bae-b44376c1342a
+              Column:
+                DataSetIdentifier: !Sub "SupportCase-${AWS::AccountId}-${AWS::Region}"
+                ColumnName: accountTag
+              Configuration:
+                FilterListConfiguration:
+                  MatchOperator: CONTAINS
+                  SelectAllOptions: FILTER_ALL_VALUES
+          ScopeConfiguration:
+            SelectedSheets:
+              SheetVisualScopingConfigurations:
+              - SheetId: 95d28580-bc1b-4bae-9cd7-f6a9c207df49
+                Scope: ALL_VISUALS
+          Status: ENABLED
+          CrossDataset: ALL_DATASETS
         AnalysisDefaults:
           DefaultNewSheetConfiguration:
             InteractiveLayoutConfiguration:
@@ -1780,7 +1814,7 @@ Resources:
                     OptimizedViewPortWidth: 1600px
             SheetContentType: INTERACTIVE
       Permissions:
-      - Principal: !Sub "${QuickSightUser}"
+      - Principal: !Sub "${QuickSightAnalysisAuthor}"
         Actions:
           - quicksight:RestoreAnalysis
           - quicksight:UpdateAnalysisPermissions

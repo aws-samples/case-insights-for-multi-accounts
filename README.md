@@ -55,7 +55,7 @@ git clone https://github.com/aws-samples/case-Insights-for-multi-accounts.git
 3.	Navigate to the case-insights-for-multi-accounts directory, and run the setup script.
 
 ```bash
-cd case-insights-for-multi-accounts/src
+cd case-insights-for-multi-accounts/src/Setup
 python3 OneClickSetup.py
 ```
 
@@ -74,7 +74,7 @@ git clone https://github.com/aws-samples/case-insights-for-multi-accounts.git
 2.	Navigate to the case-insights-for-multi-accounts directory, and run the setup script.
 
 ```bash
-cd case-insights-for-multi-accounts/src
+cd case-insights-for-multi-accounts/src/Setup
 python3 OneClickSetup.py
 ```
 
@@ -84,7 +84,7 @@ python3 OneClickSetup.py
 1.	Navigate to the AWS CloudFormation console. 
 2.	Download the [Linked Account template](https://github.com/aws-samples/case-insights-for-multi-accounts/blob/main/README.md).
 3.	Create an AWS CloudFormation StackSet with the downloaded template.
-4.	Provide the *CimaBusArn*, copied from step 6 of the DataCollection Account setup.
+4.	Provide the input.
 5.	Select deployment targets. You have the option to deploy to AWS Organization Unit (OU) or deploy to your entire AWS Organization.
 6.	Select us-east-1 as the region for deployment.
 7.	Submit.

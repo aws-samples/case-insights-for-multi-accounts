@@ -150,17 +150,17 @@ Resources:
                     json_extract_scalar(detail_map, '$.checkitemdetail.limitname') AS limitname,
                     json_extract_scalar(detail_map, '$.checkitemdetail.limitamount') AS limitamount,
                     CASE
-                      WHEN json_extract_scalar(detail_map, '$.checkitemdetail.currentusage') = 'null'
+                      WHEN json_extract_scalar(detail_map, '$.checkitemdetail.currentusage') in ('null',' ')
                       THEN '0'
                       ELSE json_extract_scalar(detail_map, '$.checkitemdetail.currentusage')
                     END AS currentusage,
-                    json_extract_scalar(detail_map, '$.checkitemdetail.FunctionARN') AS FunctionARN,
-                    json_extract_scalar(detail_map, '$.checkitemdetail.Runtime') AS Runtime,
-                    json_extract_scalar(detail_map, '$.checkitemdetail.DaystoDeprecation') AS DaystoDeprecation,
-                    json_extract_scalar(detail_map, '$.checkitemdetail.DeprecationDate') AS DeprecationDate,
-                    json_extract_scalar(detail_map, '$.checkitemdetail.AverageDailyInvokes') AS AverageDailyInvokes, 
+                    json_extract_scalar(detail_map, '$.checkitemdetail.functionarn') AS FunctionARN,
+                    json_extract_scalar(detail_map, '$.checkitemdetail.runtime') AS Runtime,
+                    json_extract_scalar(detail_map, '$.checkitemdetail.daystodeprecation') AS DaystoDeprecation,
+                    json_extract_scalar(detail_map, '$.checkitemdetail.deprecationdate') AS DeprecationDate,
+                    json_extract_scalar(detail_map, '$.checkitemdetail.dverageDailydnvokes') AS AverageDailyInvokes, 
                     json_extract_scalar(detail_map, '$.checkitemdetail.reason') AS Reason,
-                    json_extract_scalar(detail_map, '$.checkitemdetail.EstimatedMonthlySavings') AS EstimatedMonthlySavings 
+                    json_extract_scalar(detail_map, '$.checkitemdetail.estimatedmonthlysavings') AS EstimatedMonthlySavings 
                   FROM updated_tachecks LEFT JOIN "AwsDataCatalog"."heididatacollectiondb"."accountsinfo" accountinfo ON account = accountinfo."accountid")
                   SELECT * from (SELECT 
                     rank() OVER (PARTITION BY account,checks.Region,checks.checkname,checks.limitname,checks.FunctionARN,checks.Runtime,checks.resourceId ORDER BY ingestionTime DESC) AS rowrank,

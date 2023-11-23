@@ -46,7 +46,7 @@ def deploy_stack(command):
 def get_user_input():
     DeploymentRegionHealth = ""
     DeploymentRegionCases = ""
-    EnableHealthModule = ask_yes_no("Do you want to enable the AWS Health Module?")
+    EnableHealthModule = ask_yes_no("Do you want to enable the AWS Health Module? This Option must be NO if you have already enabled health in delegated health admin account")
     if EnableHealthModule:
         DeploymentRegionHealth = input("  Enter comma-separated Region names for AWS health data collection: ")
     EnableCaseModule = ask_yes_no("Do you want to enable the Support Case Module?")

@@ -234,6 +234,7 @@ Resources:
         source: 
           - prefix: aws.
           - prefix: heidi.
+          - prefix: awshealthtest
       Targets:
         - Id: DataCollectionRuleOnDataCollectionBus
           Arn: !GetAtt DataCollectionKinesisFirehose.Arn

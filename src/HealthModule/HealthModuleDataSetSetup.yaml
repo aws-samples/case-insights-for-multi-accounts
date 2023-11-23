@@ -43,7 +43,7 @@ Resources:
           projection.date_created.interval.unit: 'DAYS'
           projection.date_created.range: '2021/01/01,NOW'
           projection.source_partition.type: 'enum'
-          projection.source_partition.values: 'heidi.health,aws.health'
+          projection.source_partition.values: 'heidi.health,aws.health,awshealthtest'
           storage.location.template: !Join ['', ['s3://', !Ref DataCollectionBucket, '/DataCollection-data/${source_partition}/${date_created}/']]
         StorageDescriptor:
           # Columns and their data types for the table

@@ -49,7 +49,7 @@ This repository provides a sample code that demonstrates how to set up all the e
 2.	Clone the CIMA repository from GitHub using the command:
 
 ```bash
-git clone https://github.com/aws-samples/case-Insights-for-multi-accounts.git
+git clone https://github.com/aws-samples/case-insights-for-multi-accounts.git
 ```
 
 3.	Navigate to the case-insights-for-multi-accounts directory, and run the setup script.

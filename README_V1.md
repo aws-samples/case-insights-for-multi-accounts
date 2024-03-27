@@ -58,7 +58,7 @@ git clone https://github.com/aws-samples/case-insights-for-multi-accounts.git
 2.	Navigate to the case-insights-for-multi-accounts directory, and run the setup script.
 
 ```bash
-cd case-insights-for-multi-accounts/src/utils
+cd case-insights-for-multi-accounts/src/Setup
 python3 OneClickSetup.py
 ```
 

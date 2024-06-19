@@ -1,36 +1,22 @@
-# What is this solution indented for?
+# Consolidated Insights from Multiple Accounts(CIMA)
 
-AWS-CIMA (Case Insights for Multi-Accounts) presents a visualization dashboard that simplifies the task of overseeing and tracking cases across multiple accounts and multiple aws organization. This dashboard streamlines the process of monitoring cases, so customers can conveniently manage and track the status and progress of all cases without logging in to each individual AWS account.
+CIMA (Consolidated Insights from Multiple Accounts) presents an efficient mechanism for data collection, visualization, and notifications. Operating on an event-driven model, CIMA simplifies the collection of data from various AWS services across numerous accounts within multiple AWS organizations. CIMA generates QuickSight dashboard that is designed to streamline the monitoring of AWS events in a user-friendly format, enabling customers to conveniently access a comprehensive overview without the need to log in to each individual AWS account. 
 
-**Key Features:**
+CIMA consists of following Modules.
 
-* Centralized Visualization Dashboard: CIMA offers a centralized dashboard that aggregates case data from various accounts within an AWS Organization. This enables users to view and analyze case information from a single point of access. 
-
-* Streamlined Case Monitoring: CIMA provides a streamlined interface where users can track the status, progress, and key metrics of all cases across multiple accounts. This removes the need for manual tracking and logging into each account separately.
-
-* Real-time Updates: CIMA utilizes an event-driven architecture to capture any support case updates, so that users can have timely access to case status and progress across accounts. This information empowers organizations to make informed decisions and take actions, which improves business process efficiency. 
-
- ![ALT](img/sampleDashboard.jpg)
+* Support Case Module (Unified view of all cases across all the AWS Accounts and AWS organizations)
+* Health Module (Unified view of Upcoming events, Planned events(EOL) scheduled events and issues across all AWS Accounts and AWS Organizations)
+* Trusted Advisor Module (Unified view of all TA checks across all the AWS Accounts and AWS Organizations)
+* Notification Module (Powered by AWSChat bot to get Notification on Slack or Teams)
+* TBC
  
 # Solution Architecture
-The following diagram illustrates a multi-account structure. The DataCollection Account refers to the account which will display the unified Amazon QuickSight dashboard, and will receive events routed from the current account as well as all other accounts within your AWS Organizations. The Linked Accounts refer to any accounts other than the DataCollection Account, routing enriched events to the DataCollection Account. 
- ![ALT](img/cima-arch.jpg)
 
-The DataCollection architecture consists of an AWS EventBridge custom bus, an AWS EventBridge rule, an AWS Lambda function and Amazon S3 bucket. The presentation layer includes an Amazon Quicksight dashboard and Amazon Athena as the query engine. The Linked Account architecture consists of a role which Lambda Function in DataCollection Account assumes, EventBridge rules, and AWS Support.
+The following diagram illustrates a multi-account structure. The DataCollection Account refers to the account which will display the unified Amazon QuickSight dashboard, and will receive events routed from the current account as well as all other accounts within your AWS Organizations. The link accounts refer to any accounts other than the DataCollection Account, routing enriched events to the DataCollection Account. The DataCollection architecture consists of an AWS EventBridge custom bus, an AWS EventBridge rule, an AWS Lambda function and Amazon S3 bucket. The presentation layer includes an Amazon Quicksight dashboard and Amazon Athena as the query engine. The link account architecture consists of a role which Lambda Function in DataCollection Account Assumes, and One AWS EventBridge rules, and AWS Support.
 
-1. AWS Support emits events and places them in the default event bus associated with the account whenever a case is opened, updated, or closed.
+ ![ALT](img/cima-arch-v1.jpg)
 
-2. In a linked account, events matching the pattern ({"source": ["aws.support"]}) are forwarded to the DataCollection Account.
 
-3. The AWS EventBridge custom bus receives events from linked accounts. When an event matches the pattern ({"source": ["aws.support"]}), an AWS EventBridge rule is triggered, activating an AWS Lambda function. This Lambda function assumes a role in the account from which the event originated.
-
-4. The Lambda function invokes the AWS Support API in the linked account, enhancing the event by appending a user-friendly message.
-
-5. Subsequently, the Lambda function places the enriched event on the default bus, labeling the source as ({"source": ["heidi.support"]}).
-
-6. In the linked account, an AWS EventBridge rule on the default bus publishes an event to the custom bus in the DataCollection Account when it matches the pattern ({"source": ["heidi.support"]}).
-
-7. Upon receiving the event in the AWS DataCollection Account with the source label ({"source": ["heidi.support"]}), another EventBridge rule is triggered. This rule sends the event to Amazon Kinesis Data Firehose, which then places the event in an S3 bucket.
 
 # Prerequisite
 To setup this solution, you need to have an AWS account and be familar with the AWS Management Console:
@@ -38,13 +24,12 @@ To setup this solution, you need to have an AWS account and be familar with the 
 2.	You will need to sign up for Amazon QuickSight Enterprise Edition to use the forecast capability in the provided template. 
 3.	Your Amazon QuickSight service should have access to Amazon Athena. To enable this access, go to security and permissions under manage QuickSight drop down menu. 
 4.	The provided template uses Amazon QuickSight SPICE to hold data. Ensure you have sufficient SPICE capacity to hold your support case data. You can view the available SPICE capacity under manage QuickSight drop down menu.
-5.	[Install](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html) AWS SAM CLI
 
 # Deploying the solution
-In this section, we will go through the steps to set up components for both the central and Linked Accounts.
+In this section, we will go through the steps to set up components for both the central and link accounts.
 
 **DataCollection Account Setup**
-This repository provides a sample code that demonstrates how to set up all the essential components to receive case data from Linked Accounts. 
+This repository provides a sample code that demonstrates how to set up all the essential components to receive case data from link accounts. 
 1.	Login to your AWS account and launch AWS CloudShell.
 2.	Clone the CIMA repository from GitHub using the command:
 
@@ -59,10 +44,10 @@ cd case-insights-for-multi-accounts/src/Setup
 python3 OneClickSetup.py
 ```
 
-4. Select CentralAccount and follow the on-screen instructions.
+4. Select CentralAccount and follow the instruction for required module
 
-**Linked Account Setup**
-Once the DataCollection setup is complete, you can proceed with the Linked Account setup. There are two options for deployment in the Linked Account: 
+**Link Account Setup**
+Once the DataCollection setup is complete, you can proceed with the link account setup. There are two options for deployment in the link account: 
 
 **Option 1:** Using setup script.
 1.	Launch AWS CloudShell in us-east-1 and clone the CIMA repository from GitHub using the command:
@@ -78,13 +63,13 @@ cd case-insights-for-multi-accounts/src/Setup
 python3 OneClickSetup.py
 ```
 
-3. Select MemberAccount and follow the on-screen instructions.
+3. Select MemberSetup and follow the instruction for required module
 
 **Option 2:** Bulk deployment via StackSet:
 1.	Navigate to the AWS CloudFormation console. 
-2.	Download the [Linked Account template](https://github.com/aws-samples/case-insights-for-multi-accounts/blob/main/README.md).
+2.	Download the [Required template](https://github.com/aws-samples/case-insights-for-multi-accounts/src/).
 3.	Create an AWS CloudFormation StackSet with the downloaded template.
-4.	Provide the input.
+4.	Provide the inputs.
 5.	Select deployment targets. You have the option to deploy to AWS Organization Unit (OU) or deploy to your entire AWS Organization.
 6.	Select us-east-1 as the region for deployment.
 7.	Submit.

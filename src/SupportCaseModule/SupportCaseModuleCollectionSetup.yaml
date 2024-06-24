@@ -31,7 +31,7 @@ Parameters:
       
 Conditions:
   IsDataCollectionSetup: !Equals [!Ref IsDataCollectionSetup, "yes"]
-    
+  
 Resources:
   DataCollectionRuleRole:
     Type: AWS::IAM::Role

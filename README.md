@@ -16,8 +16,6 @@ The following diagram illustrates a multi-account structure. The DataCollection 
 
  ![ALT](img/cima-arch-v1.jpg)
 
-
-
 # Prerequisite
 To setup this solution, you need to have an AWS account and be familar with the AWS Management Console:
 1.	To use the AWS Support API in the provided AWS CloudFormation template, you need to have AWS Business Support, AWS Enterprise On-Ramp or AWS Enterprise Support plan. 
@@ -34,7 +32,7 @@ This repository provides a sample code that demonstrates how to set up all the e
 2.	Clone the CIMA repository from GitHub using the command:
 
 ```bash
-git clone https://github.com/aws-samples/case-Insights-for-multi-accounts.git
+git clone https://github.com/aws-samples/case-insights-for-multi-accounts.git
 ```
 
 3.	Navigate to the case-insights-for-multi-accounts directory, and run the setup script.
@@ -66,10 +64,13 @@ python3 OneClickSetup.py
 3. Select MemberSetup and follow the instruction for required module
 
 **Option 2:** Bulk deployment via StackSet:
+
+Note: DataCollection accounts automatically create member setups. Therefore, you must skip deploying the stack set to the DataCollection account.
+
 1.	Navigate to the AWS CloudFormation console. 
-2.	Download the [Required template](https://github.com/aws-samples/case-insights-for-multi-accounts/src/).
+2.	For support support case module download the [SupportCase member template](https://github.com/aws-samples/case-insights-for-multi-accounts/blob/main/src/SupportCaseModule/SupportCaseModuleCollectionSetup.yaml) and for Trusted advisor setup download the [TrustedAdvisor member template](https://github.com/aws-samples/case-insights-for-multi-accounts/blob/main/src/TrustedAdvisorModule/TAModuleCollectionSetup.yaml) 
 3.	Create an AWS CloudFormation StackSet with the downloaded template.
-4.	Provide the inputs.
+4.	Provide the input.
 5.	Select deployment targets. You have the option to deploy to AWS Organization Unit (OU) or deploy to your entire AWS Organization.
 6.	Select us-east-1 as the region for deployment.
 7.	Submit.

@@ -33,7 +33,7 @@ The DataCollection architecture consists of an AWS EventBridge custom bus, an AW
 7. Upon receiving the event in the AWS DataCollection Account with the source label ({"source": ["heidi.support"]}), another EventBridge rule is triggered. This rule sends the event to Amazon Kinesis Data Firehose, which then places the event in an S3 bucket.
 
 # Prerequisite
-To setup this solution, you need to have an AWS account and be familar with the AWS Management Console:
+To setup this solution, you need to have an AWS account and be familar with the AWS Management Console
 1.	To use the AWS Support API in the provided AWS CloudFormation template, you need to have AWS Business Support, AWS Enterprise On-Ramp or AWS Enterprise Support plan. 
 2.	You will need to sign up for Amazon QuickSight Enterprise Edition to use the forecast capability in the provided template. 
 3.	Your Amazon QuickSight service should have access to Amazon Athena. To enable this access, go to security and permissions under manage QuickSight drop down menu. 
